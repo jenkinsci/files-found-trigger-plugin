@@ -39,9 +39,10 @@ import antlr.ANTLRException;
 
 /**
  * Build trigger that schedules a build when certain files are found. These
- * files are declared using Ant-style file patterns.
+ * files are declared using <a
+ * href="http://ant.apache.org/manual/CoreTypes/fileset.html">Ant-style file
+ * patterns</a>.
  * 
- * @see http://ant.apache.org/manual/CoreTypes/fileset.html
  * @author Steven G. Brown
  */
 public class FilesFoundTrigger extends Trigger<BuildableItem> {
@@ -73,6 +74,8 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
    * @param ignoredFiles
    *          the pattern of files to ignore when searching under the base
    *          directory
+   * @throws ANTLRException
+   *           if unable to parse the crontab specification
    */
   @DataBoundConstructor
   public FilesFoundTrigger(String timerSpec, String directory, String files,
