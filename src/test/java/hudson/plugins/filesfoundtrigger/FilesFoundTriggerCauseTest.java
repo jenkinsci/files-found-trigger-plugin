@@ -26,9 +26,7 @@ package hudson.plugins.filesfoundtrigger;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.both;
 
 import org.junit.Test;
 
@@ -99,16 +97,16 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void testGetShortDescription() {
-    assertThat(create(DIRECTORY, FILES, "").getShortDescription(), both(
-        not(nullValue())).and(not("")));
+    assertThat(create(DIRECTORY, FILES, "").getShortDescription(), is(Messages
+        .Cause(DIRECTORY, FILES)));
   }
 
   /**
    */
   @Test
   public void testGetShortDescriptionWithIgnoredFiles() {
-    assertThat(create(DIRECTORY, FILES, "").getShortDescription(), both(
-        not(nullValue())).and(not("")));
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getShortDescription(),
+        is(Messages.CauseWithIgnoredFiles(DIRECTORY, FILES, IGNORED_FILES)));
   }
 
   /**

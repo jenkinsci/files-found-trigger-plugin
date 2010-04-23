@@ -99,7 +99,7 @@ public class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String getShortDescription() {
-    return ignoredFiles == null ? Messages.Cause(directory, files) : Messages
+    return ignoredFiles.isEmpty() ? Messages.Cause(directory, files) : Messages
         .CauseWithIgnoredFiles(directory, files, ignoredFiles);
   }
 
