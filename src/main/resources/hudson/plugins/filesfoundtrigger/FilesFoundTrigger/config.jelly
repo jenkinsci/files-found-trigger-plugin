@@ -32,11 +32,12 @@ THE SOFTWARE.
     <f:textbox />
   </f:entry>
   <f:entry title="${%Files to find}" field="files">
+    <f:textbox default="**" />
+  </f:entry>
+  <f:entry title="${%Files to ignore}" field="ignoredFiles">
     <f:textbox />
   </f:entry>
-  <f:advanced>
-    <f:entry title="${%Files to ignore}" field="ignoredFiles">
-      <f:textbox />
-    </f:entry>
-  </f:advanced>
+  <f:validateButton
+      title="${%Test}" progress="${%Testing...}"
+      method="testConfiguration" with="directory,files,ignoredFiles" />
 </j:jelly>

@@ -50,7 +50,7 @@ public class FilesFoundTriggerTest {
 
   /**
    */
-  private static final String IGNORED_FILES = null;
+  private static final String IGNORED_FILES = "";
 
   /**
    */

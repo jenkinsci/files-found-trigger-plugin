@@ -29,11 +29,13 @@ import hudson.model.BuildableItem;
 import hudson.model.Item;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
+import hudson.util.FormValidation;
 
 import java.io.File;
 
 import org.apache.tools.ant.types.FileSet;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import antlr.ANTLRException;
 
@@ -81,9 +83,9 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
   public FilesFoundTrigger(String timerSpec, String directory, String files,
       String ignoredFiles) throws ANTLRException {
     super(timerSpec);
-    this.directory = Util.fixEmptyAndTrim(directory);
-    this.files = Util.fixEmptyAndTrim(files);
-    this.ignoredFiles = Util.fixEmptyAndTrim(ignoredFiles);
+    this.directory = Util.fixNull(directory).trim();
+    this.files = Util.fixNull(files).trim();
+    this.ignoredFiles = Util.fixNull(ignoredFiles).trim();
   }
 
   /**
@@ -133,6 +135,7 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
     if (directoryFound() && filesSpecified()) {
       FileSet fileSet = Util.createFileSet(new File(directory), files,
           ignoredFiles);
+      fileSet.setDefaultexcludes(false);
       return fileSet.size() > 0;
     }
     return false;
@@ -145,7 +148,7 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
    *         otherwise
    */
   private boolean directorySpecified() {
-    return directory != null;
+    return !directory.isEmpty();
   }
 
   /**
@@ -155,7 +158,7 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
    *         otherwise
    */
   private boolean filesSpecified() {
-    return files != null;
+    return !files.isEmpty();
   }
 
   /**
@@ -188,6 +191,42 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
     @Override
     public String getDisplayName() {
       return Messages.DisplayName();
+    }
+
+    /**
+     * Test the entered trigger configuration.
+     * 
+     * @param directory
+     *          the base directory to use when locating files
+     * @param files
+     *          the pattern of files to locate under the base directory
+     * @param ignoredFiles
+     *          the pattern of files to ignore when searching under the base
+     *          directory
+     * @return the result
+     * @throws ANTLRException
+     *           if unable to parse the crontab specification
+     */
+    public FormValidation doTestConfiguration(
+        @QueryParameter("directory") final String directory,
+        @QueryParameter("files") final String files,
+        @QueryParameter("ignoredFiles") final String ignoredFiles)
+        throws ANTLRException {
+      FilesFoundTrigger trigger = new FilesFoundTrigger("", directory, files,
+          ignoredFiles);
+      if (!trigger.directorySpecified()) {
+        return FormValidation.warning(Messages.DirectoryNotSpecified());
+      }
+      if (!trigger.filesSpecified()) {
+        return FormValidation.warning(Messages.FilesNotSpecified());
+      }
+      if (!trigger.directoryFound()) {
+        return FormValidation.ok(Messages.DirectoryNotFound());
+      }
+      if (!trigger.filesFound()) {
+        return FormValidation.ok(Messages.FilesNotFound());
+      }
+      return FormValidation.ok(Messages.FilesFound());
     }
   }
 }

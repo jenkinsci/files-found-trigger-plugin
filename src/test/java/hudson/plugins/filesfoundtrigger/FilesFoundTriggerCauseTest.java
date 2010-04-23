@@ -92,7 +92,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void testGetIgnoredFilesNotSpecified() {
-    assertThat(create(DIRECTORY, FILES, "").getIgnoredFiles(), is(nullValue()));
+    assertThat(create(DIRECTORY, FILES, "").getIgnoredFiles(), is(""));
   }
 
   /**
