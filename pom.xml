@@ -9,10 +9,19 @@
   
   <artifactId>files-found-trigger</artifactId>
   <packaging>hpi</packaging>
-  <version>1.1-SNAPSHOT</version>
-  <name>Files Found Build Trigger</name>
+  <version>1.0.1-SNAPSHOT</version>
+  <name>Files Found Trigger</name>
   <description>Schedules a build when certain files exist</description>
-  <url>http://wiki.hudson-ci.org/display/HUDSON/Files+Found+Build+Trigger</url>
+  <url>http://wiki.hudson-ci.org/display/HUDSON/Files+Found+Trigger</url>
+  
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
   
   <developers>
     <developer>

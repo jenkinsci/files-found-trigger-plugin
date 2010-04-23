@@ -129,13 +129,43 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
    * @return {@code true} if at least one file was found matching this trigger's
    *         configuration, {@code false} if none were found
    */
-  private boolean filesFound() {
-    if (directory == null || files == null) {
-      return false;
+  boolean filesFound() {
+    if (directoryFound() && filesSpecified()) {
+      FileSet fileSet = Util.createFileSet(new File(directory), files,
+          ignoredFiles);
+      return fileSet.size() > 0;
     }
-    FileSet fileSet = Util.createFileSet(new File(directory), files,
-        ignoredFiles);
-    return fileSet.size() > 0;
+    return false;
+  }
+
+  /**
+   * Determine whether the directory has been specified.
+   * 
+   * @return {@code true} if the directory has been specified, {@code false}
+   *         otherwise
+   */
+  private boolean directorySpecified() {
+    return directory != null;
+  }
+
+  /**
+   * Determine whether the file pattern has been specified.
+   * 
+   * @return {@code true} if the file pattern has been specified, {@code false}
+   *         otherwise
+   */
+  private boolean filesSpecified() {
+    return files != null;
+  }
+
+  /**
+   * Determine whether the search directory exists.
+   * 
+   * @return {@code true} if the search directory exists, {@code false} if the
+   *         search directory does not exist or has not been configured
+   */
+  private boolean directoryFound() {
+    return directorySpecified() && new File(directory).isDirectory();
   }
 
   /**
