@@ -25,6 +25,7 @@ package hudson.plugins.filesfoundtrigger;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import hudson.util.FormValidation;
 
 import java.io.File;
 
@@ -134,6 +135,56 @@ public class FilesFoundTriggerTest {
     FilesFoundTrigger trigger = create(folder.getRoot().getAbsolutePath(),
         FILES, "**");
     assertThat(trigger.filesFound(), is(false));
+  }
+
+  /**
+   */
+  @Test
+  public void testDoTestConfigurationDirectoryNotSpecified() {
+    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
+        .doTestConfiguration("", FILES, IGNORED_FILES);
+    assertThat(result.kind, is(FormValidation.Kind.ERROR));
+  }
+
+  /**
+   */
+  @Test
+  public void testDoTestConfigurationFilesNotSpecified() {
+    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
+        .doTestConfiguration(DIRECTORY, "", IGNORED_FILES);
+    assertThat(result.kind, is(FormValidation.Kind.ERROR));
+  }
+
+  /**
+   */
+  @Test
+  public void testDoTestConfigurationDirectoryNotFound() {
+    File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
+    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
+        .doTestConfiguration(nonExistentDirectory.getAbsolutePath(), FILES,
+            IGNORED_FILES);
+    assertThat(result.kind, is(FormValidation.Kind.WARNING));
+  }
+
+  /**
+   */
+  @Test
+  public void testDoTestConfigurationFilesNotFound() {
+    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
+        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
+            IGNORED_FILES);
+    assertThat(result.kind, is(FormValidation.Kind.OK));
+  }
+
+  /**
+   */
+  @Test
+  public void testDoTestConfigurationFilesFound() {
+    folder.newFile("test");
+    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
+        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
+            IGNORED_FILES);
+    assertThat(result.kind, is(FormValidation.Kind.OK));
   }
 
   /**

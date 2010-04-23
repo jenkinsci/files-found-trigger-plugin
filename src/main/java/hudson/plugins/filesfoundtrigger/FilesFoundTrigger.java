@@ -83,9 +83,9 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
   public FilesFoundTrigger(String timerSpec, String directory, String files,
       String ignoredFiles) throws ANTLRException {
     super(timerSpec);
-    this.directory = Util.fixNull(directory).trim();
-    this.files = Util.fixNull(files).trim();
-    this.ignoredFiles = Util.fixNull(ignoredFiles).trim();
+    this.directory = directory.trim();
+    this.files = files.trim();
+    this.ignoredFiles = ignoredFiles.trim();
   }
 
   /**
@@ -204,24 +204,26 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
      *          the pattern of files to ignore when searching under the base
      *          directory
      * @return the result
-     * @throws ANTLRException
-     *           if unable to parse the crontab specification
      */
     public FormValidation doTestConfiguration(
         @QueryParameter("directory") final String directory,
         @QueryParameter("files") final String files,
-        @QueryParameter("ignoredFiles") final String ignoredFiles)
-        throws ANTLRException {
-      FilesFoundTrigger trigger = new FilesFoundTrigger("", directory, files,
-          ignoredFiles);
+        @QueryParameter("ignoredFiles") final String ignoredFiles) {
+      FilesFoundTrigger trigger;
+      try {
+        trigger = new FilesFoundTrigger("", directory, files, ignoredFiles);
+      } catch (ANTLRException ex) {
+        // ANTLRException is not expected to be thrown for an empty string.
+        throw new RuntimeException(ex);
+      }
       if (!trigger.directorySpecified()) {
-        return FormValidation.warning(Messages.DirectoryNotSpecified());
+        return FormValidation.error(Messages.DirectoryNotSpecified());
       }
       if (!trigger.filesSpecified()) {
-        return FormValidation.warning(Messages.FilesNotSpecified());
+        return FormValidation.error(Messages.FilesNotSpecified());
       }
       if (!trigger.directoryFound()) {
-        return FormValidation.ok(Messages.DirectoryNotFound());
+        return FormValidation.warning(Messages.DirectoryNotFound());
       }
       if (!trigger.filesFound()) {
         return FormValidation.ok(Messages.FilesNotFound());
