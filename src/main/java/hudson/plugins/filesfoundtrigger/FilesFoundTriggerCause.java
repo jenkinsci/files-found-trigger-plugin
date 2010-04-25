@@ -24,11 +24,17 @@
 package hudson.plugins.filesfoundtrigger;
 
 import hudson.model.Cause;
+import hudson.plugins.filesfoundtrigger.xstream.DefaultProvider;
+import hudson.plugins.filesfoundtrigger.xstream.DefaultingConverter;
+import hudson.plugins.filesfoundtrigger.xstream.XStreamDefault;
+import hudson.util.XStream2;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.kohsuke.stapler.export.Exported;
+
+import com.thoughtworks.xstream.converters.Converter;
 
 /**
  * The cause of a build that was started by a {@link FilesFoundTrigger}.
@@ -38,17 +44,20 @@ public class FilesFoundTriggerCause extends Cause {
   /**
    * The base directory that was used when locating files.
    */
+  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String directory;
 
   /**
    * The pattern of files that were located under the base directory.
    */
+  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String files;
 
   /**
    * The pattern of files that were ignored when searching under the base
    * directory.
    */
+  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String ignoredFiles;
 
   /**
@@ -126,5 +135,21 @@ public class FilesFoundTriggerCause extends Cause {
           && ObjectUtils.equals(ignoredFiles, other.ignoredFiles);
     }
     return false;
+  }
+
+  /**
+   * {@link Converter} implementation for XStream.
+   */
+  public static class ConverterImpl extends DefaultingConverter {
+
+    /**
+     * Class constructor.
+     * 
+     * @param xstream
+     *          reference to the XStream library
+     */
+    public ConverterImpl(XStream2 xstream) {
+      super(xstream);
+    }
   }
 }

@@ -27,9 +27,13 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.BuildableItem;
 import hudson.model.Item;
+import hudson.plugins.filesfoundtrigger.xstream.DefaultProvider;
+import hudson.plugins.filesfoundtrigger.xstream.DefaultingConverter;
+import hudson.plugins.filesfoundtrigger.xstream.XStreamDefault;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.FormValidation;
+import hudson.util.XStream2;
 
 import java.io.File;
 
@@ -38,6 +42,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import antlr.ANTLRException;
+
+import com.thoughtworks.xstream.converters.Converter;
 
 /**
  * Build trigger that schedules a build when certain files are found. These
@@ -52,16 +58,19 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
   /**
    * The base directory to use when locating files.
    */
+  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String directory;
 
   /**
    * The pattern of files to locate under the base directory.
    */
+  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String files;
 
   /**
    * The pattern of files to ignore when searching under the base directory.
    */
+  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String ignoredFiles;
 
   /**
@@ -229,6 +238,22 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
         return FormValidation.ok(Messages.FilesNotFound());
       }
       return FormValidation.ok(Messages.FilesFound());
+    }
+  }
+
+  /**
+   * {@link Converter} implementation for XStream.
+   */
+  public static class ConverterImpl extends DefaultingConverter {
+
+    /**
+     * Class constructor.
+     * 
+     * @param xstream
+     *          reference to the XStream library
+     */
+    public ConverterImpl(XStream2 xstream) {
+      super(xstream);
     }
   }
 }
