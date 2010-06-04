@@ -48,7 +48,7 @@ import com.thoughtworks.xstream.converters.Converter;
 /**
  * Build trigger that schedules a build when certain files are found. These
  * files are declared using <a
- * href="http://ant.apache.org/manual/CoreTypes/fileset.html">Ant-style file
+ * href="http://ant.apache.org/manual/dirtasks.html">Ant-style file
  * patterns</a>.
  * 
  * @author Steven G. Brown
