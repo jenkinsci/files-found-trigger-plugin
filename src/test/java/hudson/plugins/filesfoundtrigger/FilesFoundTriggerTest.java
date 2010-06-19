@@ -207,7 +207,7 @@ public class FilesFoundTriggerTest {
   public void testUnmarshal() throws Exception {
     String xml = String.format(XML_TEMPLATE, SPEC, DIRECTORY, FILES,
         IGNORED_FILES);
-    FilesFoundTrigger trigger = TestAssistant.unmarshal(xml);
+    FilesFoundTrigger trigger = (FilesFoundTrigger) XStreamUtil.unmarshal(xml);
     assertThat(String.format(XML_TEMPLATE, trigger.getSpec(), trigger
         .getDirectory(), trigger.getFiles(), trigger.getIgnoredFiles()),
         is(xml));
@@ -221,7 +221,7 @@ public class FilesFoundTriggerTest {
         + "  <spec>%s</spec>\n"
         + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
     String xml = String.format(xmlTemplateWithMissingFields, SPEC);
-    FilesFoundTrigger trigger = TestAssistant.unmarshal(xml);
+    FilesFoundTrigger trigger = (FilesFoundTrigger) XStreamUtil.unmarshal(xml);
     assertThat(String.format(XML_TEMPLATE, trigger.getSpec(), trigger
         .getDirectory(), trigger.getFiles(), trigger.getIgnoredFiles()),
         is(String.format(XML_TEMPLATE, SPEC, "", "", "")));

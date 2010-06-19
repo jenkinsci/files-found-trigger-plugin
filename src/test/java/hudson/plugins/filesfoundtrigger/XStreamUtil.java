@@ -30,46 +30,30 @@ import org.dom4j.DocumentHelper;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 /**
- * Provides utility methods for use by the unit tests.
+ * Provides XStream utility methods for use by the unit tests.
  * 
  * @author Steven G. Brown
  */
-class TestAssistant {
+class XStreamUtil {
 
   /**
    * Construct an object from the given XML element using {@link XStream2}.
    * 
-   * @param <T>
-   *          the type of object to construct
    * @param xml
    *          the XML element as a string
    * @return the newly constructed object
    * @throws Exception
    */
-  static <T> T unmarshal(String xml) throws Exception {
+  static Object unmarshal(String xml) throws Exception {
     XStream2 xStream2 = new XStream2();
     Dom4JReader reader = null;
     try {
       reader = new Dom4JReader(DocumentHelper.parseText(xml));
-      return cast(xStream2.unmarshal(reader));
+      return xStream2.unmarshal(reader);
     } finally {
       if (reader != null) {
         reader.close();
       }
     }
-  }
-
-  /**
-   * Cast the given object to type {@code T}.
-   * 
-   * @param <T>
-   *          the target type
-   * @param object
-   *          the object to cast
-   * @return the object as type {@code T}
-   */
-  @SuppressWarnings("unchecked")
-  private static <T> T cast(Object object) {
-    return (T) object;
   }
 }

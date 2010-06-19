@@ -179,7 +179,8 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void testUnmarshal() throws Exception {
     String xml = String.format(XML_TEMPLATE, DIRECTORY, FILES, IGNORED_FILES);
-    FilesFoundTriggerCause cause = TestAssistant.unmarshal(xml);
+    FilesFoundTriggerCause cause = (FilesFoundTriggerCause) XStreamUtil
+        .unmarshal(xml);
     assertThat(String.format(XML_TEMPLATE, cause.getDirectory(), cause
         .getFiles(), cause.getIgnoredFiles()), is(xml));
   }
@@ -191,7 +192,8 @@ public class FilesFoundTriggerCauseTest {
     String xmlTemplateWithMissingFields = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
         + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
     String xml = String.format(xmlTemplateWithMissingFields);
-    FilesFoundTriggerCause cause = TestAssistant.unmarshal(xml);
+    FilesFoundTriggerCause cause = (FilesFoundTriggerCause) XStreamUtil
+        .unmarshal(xml);
     assertThat(String.format(XML_TEMPLATE, cause.getDirectory(), cause
         .getFiles(), cause.getIgnoredFiles()), is(String.format(XML_TEMPLATE,
         "", "", "")));
