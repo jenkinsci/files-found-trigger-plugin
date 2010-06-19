@@ -27,13 +27,10 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.BuildableItem;
 import hudson.model.Item;
-import hudson.plugins.filesfoundtrigger.xstream.DefaultProvider;
-import hudson.plugins.filesfoundtrigger.xstream.DefaultingConverter;
-import hudson.plugins.filesfoundtrigger.xstream.XStreamDefault;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.FormValidation;
-import hudson.util.XStream2;
+import hudson.util.RobustReflectionConverter;
 
 import java.io.File;
 
@@ -44,6 +41,8 @@ import org.kohsuke.stapler.QueryParameter;
 import antlr.ANTLRException;
 
 import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * Build trigger that schedules a build when certain files are found. These
@@ -53,24 +52,21 @@ import com.thoughtworks.xstream.converters.Converter;
  * 
  * @author Steven G. Brown
  */
-public class FilesFoundTrigger extends Trigger<BuildableItem> {
+public final class FilesFoundTrigger extends Trigger<BuildableItem> {
 
   /**
    * The base directory to use when locating files.
    */
-  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String directory;
 
   /**
    * The pattern of files to locate under the base directory.
    */
-  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String files;
 
   /**
    * The pattern of files to ignore when searching under the base directory.
    */
-  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String ignoredFiles;
 
   /**
@@ -95,6 +91,21 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
     this.directory = directory.trim();
     this.files = files.trim();
     this.ignoredFiles = ignoredFiles.trim();
+  }
+
+  /**
+   * Constructor intended to be called by XStream only. Sets the default field
+   * values, which will then be overridden if these fields exist in the build
+   * configuration file.
+   * 
+   * @throws ANTLRException
+   */
+  @SuppressWarnings("unused")
+  // called reflectively by XStream
+  private FilesFoundTrigger() throws ANTLRException {
+    this.directory = "";
+    this.files = "";
+    this.ignoredFiles = "";
   }
 
   /**
@@ -181,6 +192,24 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
   }
 
   /**
+   * {@link Converter} implementation for XStream. This converter uses the
+   * {@link PureJavaReflectionProvider}, which ensures that the
+   * {@link FilesFoundTrigger#FilesFoundTrigger()} constructor is called.
+   */
+  public static class ConverterImpl extends RobustReflectionConverter {
+
+    /**
+     * Class constructor.
+     * 
+     * @param mapper
+     *          the mapper
+     */
+    public ConverterImpl(Mapper mapper) {
+      super(mapper, new PureJavaReflectionProvider());
+    }
+  }
+
+  /**
    * Registers {@link FilesFoundTrigger} as a {@link Trigger} extension.
    */
   @Extension
@@ -222,7 +251,8 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
       try {
         trigger = new FilesFoundTrigger("", directory, files, ignoredFiles);
       } catch (ANTLRException ex) {
-        // ANTLRException is not expected to be thrown for an empty string.
+        // ANTLRException is not expected to be thrown for an empty
+        // string.
         throw new RuntimeException(ex);
       }
       if (!trigger.directorySpecified()) {
@@ -238,22 +268,6 @@ public class FilesFoundTrigger extends Trigger<BuildableItem> {
         return FormValidation.ok(Messages.FilesNotFound());
       }
       return FormValidation.ok(Messages.FilesFound());
-    }
-  }
-
-  /**
-   * {@link Converter} implementation for XStream.
-   */
-  public static class ConverterImpl extends DefaultingConverter {
-
-    /**
-     * Class constructor.
-     * 
-     * @param xstream
-     *          reference to the XStream library
-     */
-    public ConverterImpl(XStream2 xstream) {
-      super(xstream);
     }
   }
 }

@@ -37,6 +37,7 @@ import antlr.ANTLRException;
  * 
  * @author Steven G. Brown
  */
+@SuppressWarnings("boxing")
 public class FilesFoundTriggerCauseTest {
 
   /**
@@ -62,6 +63,14 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   private static final String ALTERNATE_IGNORED_FILES = "alt_ignored";
+
+  /**
+   */
+  private static final String XML_TEMPLATE = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+      + "  <directory>%s</directory>\n"
+      + "  <files>%s</files>\n"
+      + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
 
   /**
    */
@@ -163,6 +172,29 @@ public class FilesFoundTriggerCauseTest {
   public void testEqualsObjectsAreEqualWithIgnoredFiles() {
     assertThat(create(DIRECTORY, FILES, IGNORED_FILES), equalTo(create(
         DIRECTORY, FILES, IGNORED_FILES)));
+  }
+
+  /**
+   */
+  @Test
+  public void testUnmarshal() throws Exception {
+    String xml = String.format(XML_TEMPLATE, DIRECTORY, FILES, IGNORED_FILES);
+    FilesFoundTriggerCause cause = TestAssistant.unmarshal(xml);
+    assertThat(String.format(XML_TEMPLATE, cause.getDirectory(), cause
+        .getFiles(), cause.getIgnoredFiles()), is(xml));
+  }
+
+  /**
+   */
+  @Test
+  public void testUnmarshalWithMissingFields() throws Exception {
+    String xmlTemplateWithMissingFields = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+        + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
+    String xml = String.format(xmlTemplateWithMissingFields);
+    FilesFoundTriggerCause cause = TestAssistant.unmarshal(xml);
+    assertThat(String.format(XML_TEMPLATE, cause.getDirectory(), cause
+        .getFiles(), cause.getIgnoredFiles()), is(String.format(XML_TEMPLATE,
+        "", "", "")));
   }
 
   /**

@@ -39,7 +39,12 @@ import antlr.ANTLRException;
  * 
  * @author Steven G. Brown
  */
+@SuppressWarnings("boxing")
 public class FilesFoundTriggerTest {
+
+  /**
+   */
+  private static final String SPEC = "* * * * *";
 
   /**
    */
@@ -52,6 +57,15 @@ public class FilesFoundTriggerTest {
   /**
    */
   private static final String IGNORED_FILES = "";
+
+  /**
+   */
+  private static final String XML_TEMPLATE = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+      + "  <spec>%s</spec>\n"
+      + "  <directory>%s</directory>\n"
+      + "  <files>%s</files>\n"
+      + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
 
   /**
    */
@@ -185,6 +199,32 @@ public class FilesFoundTriggerTest {
         .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
             IGNORED_FILES);
     assertThat(result.kind, is(FormValidation.Kind.OK));
+  }
+
+  /**
+   */
+  @Test
+  public void testUnmarshal() throws Exception {
+    String xml = String.format(XML_TEMPLATE, SPEC, DIRECTORY, FILES,
+        IGNORED_FILES);
+    FilesFoundTrigger trigger = TestAssistant.unmarshal(xml);
+    assertThat(String.format(XML_TEMPLATE, trigger.getSpec(), trigger
+        .getDirectory(), trigger.getFiles(), trigger.getIgnoredFiles()),
+        is(xml));
+  }
+
+  /**
+   */
+  @Test
+  public void testUnmarshalWithMissingFields() throws Exception {
+    String xmlTemplateWithMissingFields = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+        + "  <spec>%s</spec>\n"
+        + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
+    String xml = String.format(xmlTemplateWithMissingFields, SPEC);
+    FilesFoundTrigger trigger = TestAssistant.unmarshal(xml);
+    assertThat(String.format(XML_TEMPLATE, trigger.getSpec(), trigger
+        .getDirectory(), trigger.getFiles(), trigger.getIgnoredFiles()),
+        is(String.format(XML_TEMPLATE, SPEC, "", "", "")));
   }
 
   /**

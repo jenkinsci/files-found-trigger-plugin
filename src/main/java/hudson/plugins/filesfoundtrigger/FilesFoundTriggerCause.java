@@ -24,40 +24,38 @@
 package hudson.plugins.filesfoundtrigger;
 
 import hudson.model.Cause;
-import hudson.plugins.filesfoundtrigger.xstream.DefaultProvider;
-import hudson.plugins.filesfoundtrigger.xstream.DefaultingConverter;
-import hudson.plugins.filesfoundtrigger.xstream.XStreamDefault;
-import hudson.util.XStream2;
+import hudson.util.RobustReflectionConverter;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.kohsuke.stapler.export.Exported;
 
+import antlr.ANTLRException;
+
 import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * The cause of a build that was started by a {@link FilesFoundTrigger}.
  */
-public class FilesFoundTriggerCause extends Cause {
+public final class FilesFoundTriggerCause extends Cause {
 
   /**
    * The base directory that was used when locating files.
    */
-  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String directory;
 
   /**
    * The pattern of files that were located under the base directory.
    */
-  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String files;
 
   /**
    * The pattern of files that were ignored when searching under the base
    * directory.
    */
-  @XStreamDefault(DefaultProvider.EmptyString.class)
   private final String ignoredFiles;
 
   /**
@@ -70,6 +68,21 @@ public class FilesFoundTriggerCause extends Cause {
     this.directory = trigger.getDirectory();
     this.files = trigger.getFiles();
     this.ignoredFiles = trigger.getIgnoredFiles();
+  }
+
+  /**
+   * Constructor intended to be called by XStream only. Sets the default field
+   * values, which will then be overridden if these fields exist in the build
+   * configuration file.
+   * 
+   * @throws ANTLRException
+   */
+  @SuppressWarnings("unused")
+  // called reflectively by XStream
+  private FilesFoundTriggerCause() throws ANTLRException {
+    this.directory = "";
+    this.files = "";
+    this.ignoredFiles = "";
   }
 
   /**
@@ -138,18 +151,21 @@ public class FilesFoundTriggerCause extends Cause {
   }
 
   /**
-   * {@link Converter} implementation for XStream.
+   * {@link Converter} implementation for XStream. This converter uses the
+   * {@link PureJavaReflectionProvider}, which ensures that the
+   * {@link FilesFoundTriggerCause#FilesFoundTriggerCause()} constructor is
+   * called.
    */
-  public static class ConverterImpl extends DefaultingConverter {
+  public static class ConverterImpl extends RobustReflectionConverter {
 
     /**
      * Class constructor.
      * 
-     * @param xstream
-     *          reference to the XStream library
+     * @param mapper
+     *          the mapper
      */
-    public ConverterImpl(XStream2 xstream) {
-      super(xstream);
+    public ConverterImpl(Mapper mapper) {
+      super(mapper, new PureJavaReflectionProvider());
     }
   }
 }

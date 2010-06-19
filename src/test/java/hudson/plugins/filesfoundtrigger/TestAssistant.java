@@ -21,57 +21,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.filesfoundtrigger.xstream;
+package hudson.plugins.filesfoundtrigger;
+
+import hudson.util.XStream2;
+
+import org.dom4j.DocumentHelper;
+
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 /**
- * Provides default values for fields marked with the {@link XStreamDefault}
- * annotation.
- * 
- * @param <T>
- *          the type of values supported by this provider
+ * Provides utility methods for use by the unit tests.
  * 
  * @author Steven G. Brown
  */
-public interface DefaultProvider<T> {
+class TestAssistant {
 
   /**
-   * Get a default value.
+   * Construct an object from the given XML element using {@link XStream2}.
    * 
-   * @param name
-   *          the field name
-   * @param type
-   *          the field type
-   * @param definedIn
-   *          the class in which the field is defined
-   * @return the default value
+   * @param <T>
+   *          the type of object to construct
+   * @param xml
+   *          the XML element as a string
+   * @return the newly constructed object
+   * @throws Exception
    */
-  T getDefault(String name, Class<?> type, Class<?> definedIn);
+  static <T> T unmarshal(String xml) throws Exception {
+    XStream2 xStream2 = new XStream2();
+    Dom4JReader reader = null;
+    try {
+      reader = new Dom4JReader(DocumentHelper.parseText(xml));
+      return cast(xStream2.unmarshal(reader));
+    } finally {
+      if (reader != null) {
+        reader.close();
+      }
+    }
+  }
 
   /**
-   * Get the type of values supported by this provider.
+   * Cast the given object to type {@code T}.
    * 
-   * @return the supported type
+   * @param <T>
+   *          the target type
+   * @param object
+   *          the object to cast
+   * @return the object as type {@code T}
    */
-  Class<T> getSupportedType();
-
-  /**
-   * Implementation of {@link DefaultProvider} that allows fields to default to
-   * an empty string.
-   */
-  public static class EmptyString implements DefaultProvider<String> {
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getDefault(String name, Class<?> type, Class<?> definedIn) {
-      return "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Class<String> getSupportedType() {
-      return String.class;
-    }
+  @SuppressWarnings("unchecked")
+  private static <T> T cast(Object object) {
+    return (T) object;
   }
 }
