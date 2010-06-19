@@ -9,7 +9,7 @@
   
   <artifactId>files-found-trigger</artifactId>
   <packaging>hpi</packaging>
-  <version>1.1.2</version>
+  <version>1.1.2-SNAPSHOT</version>
   <name>Files Found Trigger</name>
   <description>Schedules a build when certain files exist</description>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Files+Found+Trigger</url>
@@ -30,10 +30,4 @@
       <email>StevenGBrown@gmail.com</email>
     </developer>
   </developers>
-
-  <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/files-found-trigger-1.1.2</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/files-found-trigger-1.1.2</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/files-found-trigger/tags/files-found-trigger-1.1.2</url>
-  </scm>
 </project>
