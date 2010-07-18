@@ -168,7 +168,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    *         otherwise
    */
   private boolean directorySpecified() {
-    return !directory.isEmpty();
+    return directory.length() != 0;
   }
 
   /**
@@ -178,7 +178,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    *         otherwise
    */
   private boolean filesSpecified() {
-    return !files.isEmpty();
+    return files.length() != 0;
   }
 
   /**

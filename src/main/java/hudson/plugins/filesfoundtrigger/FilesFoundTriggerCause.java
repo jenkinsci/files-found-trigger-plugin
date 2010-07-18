@@ -121,8 +121,8 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String getShortDescription() {
-    return ignoredFiles.isEmpty() ? Messages.Cause(directory, files) : Messages
-        .CauseWithIgnoredFiles(directory, files, ignoredFiles);
+    return ignoredFiles.length() == 0 ? Messages.Cause(directory, files)
+        : Messages.CauseWithIgnoredFiles(directory, files, ignoredFiles);
   }
 
   /**
