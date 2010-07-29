@@ -10,10 +10,7 @@
   <build>
     <plugins>  
       <plugin>
-        <!--
-          Enforce Java 5.0 compatibility. This Maven declaration is based on
-          http://stackoverflow.com/questions/2173302/has-anyone-got-the-animal-sniffer-plugin-to-work/2173742#2173742
-        -->
+        <!-- Enforce Java 5.0 compatibility. -->
         <groupId>org.jvnet</groupId>
         <artifactId>animal-sniffer</artifactId>
         <version>1.2</version>
