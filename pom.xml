@@ -69,4 +69,20 @@
       <email>StevenGBrown@gmail.com</email>
     </developer>
   </developers>
+
+  <!-- Needed to build against Hudson 1.389 or earlier. -->
+  <distributionManagement>
+    <site>
+      <id>hudson-www</id>
+      <url>scp://hudson-labs.org/home/kohsuke/www/hudson-labs.org/maven-site/</url>
+    </site>
+    <repository>
+      <id>maven.hudson-labs.org</id>
+      <url>http://maven.hudson-labs.org/content/repositories/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>maven.hudson-labs.org</id>
+      <url>http://maven.hudson-labs.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 </project>
