@@ -8,9 +8,16 @@
   </parent>
 
   <scm>
-    <connection>scm:git:git://github.com/hudson/files-found-trigger-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:hudson/files-found-trigger-plugin.git</developerConnection>
-  </scm>  
+    <connection>scm:git:git://github.com/jenkinsci/files-found-trigger-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/files-found-trigger-plugin.git</developerConnection>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>maven.jenkins-ci.org</id>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
 
   <build>
     <plugins>
@@ -36,7 +43,7 @@
           </execution>
         </executions>
       </plugin>
-      <!-- Needed to build against Hudson 1.387 or earlier. -->
+      <!-- Needed to build against Jenkins/Hudson 1.387 or earlier. -->
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
@@ -51,7 +58,7 @@
   <version>1.1.4-SNAPSHOT</version>
   <name>Files Found Trigger</name>
   <description>Schedules a build when certain files exist</description>
-  <url>http://wiki.hudson-ci.org/display/HUDSON/Files+Found+Trigger</url>
+  <url>http://wiki.jenkins-ci.org/display/JENKINS/Files+Found+Trigger</url>
 
   <dependencies>
     <dependency>
