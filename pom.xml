@@ -55,7 +55,7 @@
 
   <artifactId>files-found-trigger</artifactId>
   <packaging>hpi</packaging>
-  <version>1.1.4</version>
+  <version>1.1.5-SNAPSHOT</version>
   <name>Files Found Trigger</name>
   <description>Schedules a build when certain files exist</description>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Files+Found+Trigger</url>
