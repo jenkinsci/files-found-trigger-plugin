@@ -59,4 +59,7 @@ class XStreamUtil {
     T obj = (T) xStream2.fromXML(xml);
     return obj;
   }
+
+  private XStreamUtil() {
+  }
 }
