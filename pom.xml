@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jvnet.hudson.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.301</version>
+    <version>1.377</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -58,7 +58,7 @@
 
   <artifactId>files-found-trigger</artifactId>
   <packaging>hpi</packaging>
-  <version>1.1.5-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <name>Files Found Trigger</name>
   <description>Schedules a build when certain files exist</description>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Files+Found+Trigger</url>
@@ -68,6 +68,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.8.5</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

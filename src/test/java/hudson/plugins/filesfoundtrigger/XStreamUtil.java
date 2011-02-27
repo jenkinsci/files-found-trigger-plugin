@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2010 Steven G. Brown
+ * Copyright (c) 2011 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package hudson.plugins.filesfoundtrigger;
 
 import hudson.util.XStream2;
 
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
@@ -39,17 +40,22 @@ class XStreamUtil {
   /**
    * Construct an object from the given XML element using {@link XStream2}.
    * 
+   * @param <T>
+   *          the type of object to construct
    * @param xml
    *          the XML element as a string
    * @return the newly constructed object
-   * @throws Exception
    */
-  static Object unmarshal(String xml) throws Exception {
+  static <T> T unmarshal(String xml) {
     XStream2 xStream2 = new XStream2();
     Dom4JReader reader = null;
     try {
       reader = new Dom4JReader(DocumentHelper.parseText(xml));
-      return xStream2.unmarshal(reader);
+      @SuppressWarnings("unchecked")
+      T obj = (T) xStream2.unmarshal(reader);
+      return obj;
+    } catch (DocumentException ex) {
+      throw new RuntimeException(ex);
     } finally {
       if (reader != null) {
         reader.close();

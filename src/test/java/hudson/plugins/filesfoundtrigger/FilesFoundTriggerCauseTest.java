@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2010 Steven G. Brown
+ * Copyright (c) 2011 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.junit.Test;
-
-import antlr.ANTLRException;
 
 /**
  * Unit test for the {@link FilesFoundTriggerCause} class.
@@ -66,16 +66,8 @@ public class FilesFoundTriggerCauseTest {
 
   /**
    */
-  private static final String XML_TEMPLATE = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
-      + "  <directory>%s</directory>\n"
-      + "  <files>%s</files>\n"
-      + "  <ignoredFiles>%s</ignoredFiles>\n"
-      + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
-
-  /**
-   */
   @Test
-  public void testGetDirectory() {
+  public void getDirectory() {
     assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getDirectory(),
         is(DIRECTORY));
   }
@@ -83,14 +75,14 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void testGetFiles() {
+  public void getFiles() {
     assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getFiles(), is(FILES));
   }
 
   /**
    */
   @Test
-  public void testGetIgnoredFiles() {
+  public void getIgnoredFiles() {
     assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getIgnoredFiles(),
         is(IGNORED_FILES));
   }
@@ -98,14 +90,14 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void testGetIgnoredFilesNotSpecified() {
+  public void getIgnoredFilesNotSpecified() {
     assertThat(create(DIRECTORY, FILES, "").getIgnoredFiles(), is(""));
   }
 
   /**
    */
   @Test
-  public void testGetShortDescription() {
+  public void getShortDescription() {
     assertThat(create(DIRECTORY, FILES, "").getShortDescription(), is(Messages
         .Cause(DIRECTORY, FILES)));
   }
@@ -113,7 +105,7 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void testGetShortDescriptionWithIgnoredFiles() {
+  public void getShortDescriptionWithIgnoredFiles() {
     assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getShortDescription(),
         is(Messages.CauseWithIgnoredFiles(DIRECTORY, FILES, IGNORED_FILES)));
   }
@@ -121,7 +113,7 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void testHashCode() {
+  public void hashCodeWithoutIgnoredFiles() {
     assertThat(create(DIRECTORY, FILES, "").hashCode(), is(create(DIRECTORY,
         FILES, "").hashCode()));
   }
@@ -129,7 +121,7 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void testHashCodeWithIgnoredFiles() {
+  public void hashCodeWithIgnoredFiles() {
     assertThat(create(DIRECTORY, FILES, IGNORED_FILES).hashCode(), is(create(
         DIRECTORY, FILES, IGNORED_FILES).hashCode()));
   }
@@ -137,66 +129,107 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void testEqualsDirectoryDiffers() {
-    assertThat(create(DIRECTORY, FILES, ""), not(equalTo(create(
-        ALTERNATE_DIRECTORY, FILES, ""))));
+  public void equalsNull() {
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES), not(equalTo(null)));
   }
 
   /**
    */
   @Test
-  public void testEqualsFilesDiffers() {
-    assertThat(create(DIRECTORY, FILES, ""), not(equalTo(create(DIRECTORY,
-        ALTERNATE_FILES, ""))));
+  public void equalsObjectOfDifferentClass() {
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).equals(new Object()),
+        is(false));
   }
 
   /**
    */
   @Test
-  public void testEqualsIgnoredFilesDiffers() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES), not(equalTo(create(
-        DIRECTORY, FILES, ALTERNATE_IGNORED_FILES))));
+  public void equalsDirectoryDiffers() {
+    assertThat(create(DIRECTORY, FILES, "").equals(
+        create(ALTERNATE_DIRECTORY, FILES, "")), is(false));
   }
 
   /**
    */
   @Test
-  public void testEqualsObjectsAreEqual() {
-    assertThat(create(DIRECTORY, FILES, ""), equalTo(create(DIRECTORY, FILES,
-        "")));
+  public void equalsFilesDiffers() {
+    assertThat(create(DIRECTORY, FILES, "").equals(
+        create(DIRECTORY, ALTERNATE_FILES, "")), is(false));
   }
 
   /**
    */
   @Test
-  public void testEqualsObjectsAreEqualWithIgnoredFiles() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES), equalTo(create(
-        DIRECTORY, FILES, IGNORED_FILES)));
+  public void equalsIgnoredFilesDiffers() {
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).equals(
+        create(DIRECTORY, FILES, ALTERNATE_IGNORED_FILES)), is(false));
   }
 
   /**
    */
   @Test
-  public void testUnmarshal() throws Exception {
-    String xml = String.format(XML_TEMPLATE, DIRECTORY, FILES, IGNORED_FILES);
-    FilesFoundTriggerCause cause = (FilesFoundTriggerCause) XStreamUtil
-        .unmarshal(xml);
-    assertThat(String.format(XML_TEMPLATE, cause.getDirectory(), cause
-        .getFiles(), cause.getIgnoredFiles()), is(xml));
+  public void equalsObjectsAreEqual() {
+    assertThat(create(DIRECTORY, FILES, "")
+        .equals(create(DIRECTORY, FILES, "")), is(true));
   }
 
   /**
    */
   @Test
-  public void testUnmarshalWithMissingFields() throws Exception {
-    String xmlTemplateWithMissingFields = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
-        + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
-    String xml = String.format(xmlTemplateWithMissingFields);
-    FilesFoundTriggerCause cause = (FilesFoundTriggerCause) XStreamUtil
-        .unmarshal(xml);
-    assertThat(String.format(XML_TEMPLATE, cause.getDirectory(), cause
-        .getFiles(), cause.getIgnoredFiles()), is(String.format(XML_TEMPLATE,
-        "", "", "")));
+  public void equalsObjectsAreEqualWithIgnoredFiles() {
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).equals(
+        create(DIRECTORY, FILES, IGNORED_FILES)), is(true));
+  }
+
+  /**
+   */
+  @Test
+  public void toStringContainsDirectory() {
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).toString(),
+        containsString(DIRECTORY));
+  }
+
+  /**
+   */
+  @Test
+  public void toStringContainsFiles() {
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).toString(),
+        containsString(FILES));
+  }
+
+  /**
+   */
+  @Test
+  public void toStringContainsIgnoredFiles() {
+    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).toString(),
+        containsString(IGNORED_FILES));
+  }
+
+  /**
+   */
+  @Test
+  public void unmarshal() {
+    String xml = String.format(
+        "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+            + "  <directory>%s</directory>\n" + "  <files>%s</files>\n"
+            + "  <ignoredFiles>%s</ignoredFiles>\n"
+            + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>",
+        DIRECTORY, FILES, IGNORED_FILES);
+    FilesFoundTriggerCause cause = XStreamUtil.unmarshal(xml);
+    assertThat(ObjectUtils.toString(cause), is(ObjectUtils.toString(create(
+        DIRECTORY, FILES, IGNORED_FILES))));
+  }
+
+  /**
+   */
+  @Test
+  public void unmarshalWithMissingFields() {
+    String xml = String
+        .format("<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+            + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>");
+    FilesFoundTriggerCause cause = XStreamUtil.unmarshal(xml);
+    assertThat(ObjectUtils.toString(cause), is(ObjectUtils.toString(create("",
+        "", ""))));
   }
 
   /**
@@ -212,13 +245,8 @@ public class FilesFoundTriggerCauseTest {
    */
   private FilesFoundTriggerCause create(String directory, String files,
       String ignoredFiles) {
-    try {
-      FilesFoundTrigger trigger = new FilesFoundTrigger("", directory, files,
-          ignoredFiles);
-      FilesFoundTriggerCause triggerCause = new FilesFoundTriggerCause(trigger);
-      return triggerCause;
-    } catch (ANTLRException ex) {
-      throw new RuntimeException(ex);
-    }
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(directory,
+        files, ignoredFiles);
+    return new FilesFoundTriggerCause(config);
   }
 }

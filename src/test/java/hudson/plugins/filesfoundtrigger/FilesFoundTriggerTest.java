@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2010 Steven G. Brown
+ * Copyright (c) 2011 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,22 @@
 package hudson.plugins.filesfoundtrigger;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import hudson.util.FormValidation;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import hudson.model.BuildableItem;
+import hudson.model.Item;
 
-import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -56,16 +67,7 @@ public class FilesFoundTriggerTest {
 
   /**
    */
-  private static final String IGNORED_FILES = "";
-
-  /**
-   */
-  private static final String XML_TEMPLATE = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-      + "  <spec>%s</spec>\n"
-      + "  <directory>%s</directory>\n"
-      + "  <files>%s</files>\n"
-      + "  <ignoredFiles>%s</ignoredFiles>\n"
-      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
+  private static final String IGNORED_FILES = "ignore";
 
   /**
    */
@@ -75,177 +77,232 @@ public class FilesFoundTriggerTest {
   /**
    */
   @Test
-  public void testGetDirectory() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getDirectory(),
-        is(DIRECTORY));
+  public void getSpec() {
+    assertThat(create(SPEC).getSpec(), is(SPEC));
   }
 
   /**
    */
   @Test
-  public void testGetFiles() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getFiles(), is(FILES));
+  public void getConfigsNull() {
+    assertThat(create(SPEC, (FilesFoundTriggerConfig[]) null).getConfigs(),
+        is(Collections.<FilesFoundTriggerConfig> emptyList()));
   }
 
   /**
    */
   @Test
-  public void testGetIgnoredFiles() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getIgnoredFiles(),
-        is(IGNORED_FILES));
+  public void getConfigsEmpty() {
+    assertThat(create(SPEC).getConfigs(), is(Collections
+        .<FilesFoundTriggerConfig> emptyList()));
   }
 
   /**
    */
   @Test
-  public void testFilesFoundDirectoryNotSpecified() {
-    FilesFoundTrigger trigger = create("", FILES, IGNORED_FILES);
-    assertThat(trigger.filesFound(), is(false));
+  public void getConfigs() {
+    assertThat(create(SPEC, config(), config()).getConfigs().size(), is(2));
   }
 
   /**
    */
   @Test
-  public void testFilesFoundDirectoryNotFound() {
-    File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
-    FilesFoundTrigger trigger = create(nonExistentDirectory.getAbsolutePath(),
-        FILES, IGNORED_FILES);
-    assertThat(trigger.filesFound(), is(false));
+  public void runBuildScheduled() {
+    FilesFoundTriggerConfig config = foundConfig();
+    FilesFoundTrigger trigger = create(SPEC, config);
+    BuildableItem job = mock(BuildableItem.class);
+    trigger.start(job, true);
+    trigger.run();
+    verify(job, times(1)).scheduleBuild(0, new FilesFoundTriggerCause(config));
   }
 
   /**
    */
   @Test
-  public void testFilesFoundFilesNotSpecified() {
-    FilesFoundTrigger trigger = create(folder.getRoot().getAbsolutePath(), "",
-        IGNORED_FILES);
-    assertThat(trigger.filesFound(), is(false));
+  public void runNoBuildScheduled() {
+    FilesFoundTriggerConfig config = notFoundConfig();
+    FilesFoundTrigger trigger = create(SPEC, config);
+    BuildableItem job = mock(BuildableItem.class);
+    trigger.start(job, true);
+    trigger.run();
+    verifyZeroInteractions(job);
   }
 
   /**
    */
   @Test
-  public void testFilesFoundSuccess() {
-    folder.newFile("test");
-    FilesFoundTrigger trigger = create(folder.getRoot().getAbsolutePath(),
-        FILES, IGNORED_FILES);
-    assertThat(trigger.filesFound(), is(true));
+  public void toStringContainsSpec() {
+    assertThat(create(SPEC).toString(), containsString(SPEC));
   }
 
   /**
    */
   @Test
-  public void testFilesFoundNoFiles() {
-    FilesFoundTrigger trigger = create(folder.getRoot().getAbsolutePath(),
-        FILES, IGNORED_FILES);
-    assertThat(trigger.filesFound(), is(false));
+  public void toStringContainsConfig() {
+    assertThat(create(SPEC, config()).toString(), containsString(config()
+        .toString()));
   }
 
   /**
    */
   @Test
-  public void testFilesFoundNoUnignoredFiles() {
-    folder.newFile("test");
-    FilesFoundTrigger trigger = create(folder.getRoot().getAbsolutePath(),
-        FILES, "**");
-    assertThat(trigger.filesFound(), is(false));
+  public void testUnmarshal() {
+    String xml = String
+        .format(
+            "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+                + "  <spec>%s</spec>\n"
+                + "  <configs>\n"
+                + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+                + "      <directory>%s</directory>\n"
+                + "      <files>%s</files>\n"
+                + "      <ignoredFiles>%s</ignoredFiles>\n"
+                + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+                + "  </configs>\n"
+                + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>",
+            SPEC, DIRECTORY, FILES, IGNORED_FILES);
+    FilesFoundTrigger trigger = XStreamUtil.unmarshal(xml);
+    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
+        SPEC, config()))));
   }
 
   /**
    */
   @Test
-  public void testDoTestConfigurationDirectoryNotSpecified() {
-    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
-        .doTestConfiguration("", FILES, IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.ERROR));
+  public void testUnmarshalWithMissingFields() {
+    String xml = String
+        .format(
+            "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+                + "  <spec>%s</spec>\n"
+                + "  <configs>\n"
+                + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+                + "    <directory>%s</directory>\n"
+                + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+                + "  </configs>\n"
+                + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>",
+            SPEC, DIRECTORY);
+    FilesFoundTrigger trigger = XStreamUtil.unmarshal(xml);
+    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
+        SPEC, new FilesFoundTriggerConfig(DIRECTORY, "", "")))));
   }
 
   /**
    */
   @Test
-  public void testDoTestConfigurationFilesNotSpecified() {
-    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
-        .doTestConfiguration(DIRECTORY, "", IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.ERROR));
+  public void testUnmarshalV1_1Format() {
+    String xml = String.format(
+        "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+            + "  <spec>%s</spec>\n" + "  <directory>%s</directory>\n"
+            + "  <files>%s</files>\n" + "  <ignoredFiles>%s</ignoredFiles>\n"
+            + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC,
+        DIRECTORY, FILES, IGNORED_FILES);
+    FilesFoundTrigger trigger = XStreamUtil.unmarshal(xml);
+    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
+        SPEC, config()))));
   }
 
   /**
    */
   @Test
-  public void testDoTestConfigurationDirectoryNotFound() {
-    File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
-    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
-        .doTestConfiguration(nonExistentDirectory.getAbsolutePath(), FILES,
-            IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.WARNING));
-  }
-
-  /**
-   */
-  @Test
-  public void testDoTestConfigurationFilesNotFound() {
-    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
-        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
-            IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.OK));
-  }
-
-  /**
-   */
-  @Test
-  public void testDoTestConfigurationFilesFound() {
-    folder.newFile("test");
-    FormValidation result = new FilesFoundTrigger.DescriptorImpl()
-        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
-            IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.OK));
-  }
-
-  /**
-   */
-  @Test
-  public void testUnmarshal() throws Exception {
-    String xml = String.format(XML_TEMPLATE, SPEC, DIRECTORY, FILES,
-        IGNORED_FILES);
-    FilesFoundTrigger trigger = (FilesFoundTrigger) XStreamUtil.unmarshal(xml);
-    assertThat(String.format(XML_TEMPLATE, trigger.getSpec(), trigger
-        .getDirectory(), trigger.getFiles(), trigger.getIgnoredFiles()),
-        is(xml));
-  }
-
-  /**
-   */
-  @Test
-  public void testUnmarshalWithMissingFields() throws Exception {
+  public void testUnmarshalV1_1FormatWithMissingFields() {
     String xmlTemplateWithMissingFields = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
         + "  <spec>%s</spec>\n"
         + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
     String xml = String.format(xmlTemplateWithMissingFields, SPEC);
-    FilesFoundTrigger trigger = (FilesFoundTrigger) XStreamUtil.unmarshal(xml);
-    assertThat(String.format(XML_TEMPLATE, trigger.getSpec(), trigger
-        .getDirectory(), trigger.getFiles(), trigger.getIgnoredFiles()),
-        is(String.format(XML_TEMPLATE, SPEC, "", "", "")));
+    FilesFoundTrigger trigger = XStreamUtil.unmarshal(xml);
+    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
+        SPEC, emptyConfig()))));
   }
 
   /**
-   * Create a new {@link FilesFoundTrigger} instance.
-   * 
-   * @param directory
-   *          the base directory
-   * @param files
-   *          the pattern of files
-   * @param ignoredFiles
-   *          the pattern of ignored files
-   * @return a new {@link FilesFoundTrigger}
    */
-  private FilesFoundTrigger create(String directory, String files,
-      String ignoredFiles) {
+  @Test
+  public void isApplicableNull() {
+    assertThat(new FilesFoundTrigger.DescriptorImpl().isApplicable(null),
+        is(false));
+  }
+
+  /**
+   */
+  @Test
+  public void isApplicableItem() {
+    Item item = mock(Item.class);
+    assertThat(new FilesFoundTrigger.DescriptorImpl().isApplicable(item),
+        is(false));
+  }
+
+  /**
+   */
+  @Test
+  public void isApplicableBuildableItem() {
+    BuildableItem buildableItem = mock(BuildableItem.class);
+    assertThat(new FilesFoundTrigger.DescriptorImpl()
+        .isApplicable(buildableItem), is(true));
+  }
+
+  /**
+   */
+  @Test
+  public void getDisplayName() {
+    assertThat(new FilesFoundTrigger.DescriptorImpl().getDisplayName(),
+        not(nullValue()));
+  }
+
+  /**
+   * Create a new {@link FilesFoundTrigger}.
+   * 
+   * @param spec
+   *          crontab specification that defines how often to poll the directory
+   * @param configs
+   *          the list of configured file patterns
+   * @return a new trigger
+   */
+  private FilesFoundTrigger create(String spec,
+      FilesFoundTriggerConfig... configs) {
+    List<FilesFoundTriggerConfig> configsList = configs == null ? null : Arrays
+        .asList(configs);
     try {
-      FilesFoundTrigger trigger = new FilesFoundTrigger("", directory, files,
-          ignoredFiles);
+      FilesFoundTrigger trigger = new FilesFoundTrigger(spec, configsList);
       return trigger;
     } catch (ANTLRException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  /**
+   * Create a new {@link FilesFoundTriggerConfig}.
+   * 
+   * @return a new config
+   */
+  private FilesFoundTriggerConfig config() {
+    return new FilesFoundTriggerConfig(DIRECTORY, FILES, IGNORED_FILES);
+  }
+
+  /**
+   * Create an empty {@link FilesFoundTriggerConfig}.
+   * 
+   * @return an empty config
+   */
+  private FilesFoundTriggerConfig emptyConfig() {
+    return new FilesFoundTriggerConfig("", "", "");
+  }
+
+  /**
+   * Create a new {@link FilesFoundTriggerConfig} that will find files.
+   * 
+   * @return a new config that will find files
+   */
+  private FilesFoundTriggerConfig foundConfig() {
+    folder.newFile("test");
+    return new FilesFoundTriggerConfig(folder.getRoot().getAbsolutePath(),
+        "**", "");
+  }
+
+  /**
+   * Create a new {@link FilesFoundTriggerConfig} that will not find files.
+   * 
+   * @return a new config that will not find files
+   */
+  private FilesFoundTriggerConfig notFoundConfig() {
+    return new FilesFoundTriggerConfig("", "", "");
   }
 }

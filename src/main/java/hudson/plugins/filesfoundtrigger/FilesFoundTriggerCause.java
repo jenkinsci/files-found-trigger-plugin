@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2010 Steven G. Brown
+ * Copyright (c) 2011 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,9 @@ import hudson.util.RobustReflectionConverter;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.kohsuke.stapler.export.Exported;
+import net.sf.json.JSONObject;
 
-import antlr.ANTLRException;
+import org.kohsuke.stapler.export.Exported;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
@@ -61,25 +60,23 @@ public final class FilesFoundTriggerCause extends Cause {
   /**
    * Create a new {@link FilesFoundTriggerCause}.
    * 
-   * @param trigger
-   *          the trigger that has scheduled a build
+   * @param config
+   *          the configuration that has scheduled a build
    */
-  FilesFoundTriggerCause(FilesFoundTrigger trigger) {
-    this.directory = trigger.getDirectory();
-    this.files = trigger.getFiles();
-    this.ignoredFiles = trigger.getIgnoredFiles();
+  FilesFoundTriggerCause(FilesFoundTriggerConfig config) {
+    this.directory = config.getDirectory();
+    this.files = config.getFiles();
+    this.ignoredFiles = config.getIgnoredFiles();
   }
 
   /**
    * Constructor intended to be called by XStream only. Sets the default field
    * values, which will then be overridden if these fields exist in the build
    * configuration file.
-   * 
-   * @throws ANTLRException
    */
   @SuppressWarnings("unused")
   // called reflectively by XStream
-  private FilesFoundTriggerCause() throws ANTLRException {
+  private FilesFoundTriggerCause() {
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
@@ -138,25 +135,32 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
     if (obj instanceof FilesFoundTriggerCause) {
       FilesFoundTriggerCause other = (FilesFoundTriggerCause) obj;
-      return ObjectUtils.equals(directory, other.directory)
-          && ObjectUtils.equals(files, other.files)
-          && ObjectUtils.equals(ignoredFiles, other.ignoredFiles);
+      return directory.equals(other.directory) && files.equals(other.files)
+          && ignoredFiles.equals(other.ignoredFiles);
     }
     return false;
   }
 
   /**
-   * {@link Converter} implementation for XStream. This converter uses the
-   * {@link PureJavaReflectionProvider}, which ensures that the
-   * {@link FilesFoundTriggerCause#FilesFoundTriggerCause()} constructor is
-   * called.
+   * {@inheritDoc}
    */
-  public static class ConverterImpl extends RobustReflectionConverter {
+  @Override
+  public String toString() {
+    JSONObject json = new JSONObject();
+    json.element("directory", directory);
+    json.element("files", files);
+    json.element("ignoredFiles", ignoredFiles);
+    return json.toString().replace('"', '\'');
+  }
+
+  /**
+   * {@link Converter} implementation for XStream. This converter uses the
+   * {@link PureJavaReflectionProvider}, which ensures that the default
+   * constructor is called.
+   */
+  public static final class ConverterImpl extends RobustReflectionConverter {
 
     /**
      * Class constructor.
