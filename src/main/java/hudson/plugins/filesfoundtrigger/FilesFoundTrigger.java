@@ -37,7 +37,6 @@ import java.util.List;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import antlr.ANTLRException;
@@ -93,9 +92,6 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
       throws ANTLRException {
     super(spec);
     this.configs = new ArrayList<FilesFoundTriggerConfig>(fixNull(configs));
-    if (this.configs.isEmpty()) {
-      this.configs.add(new FilesFoundTriggerConfig("", "", ""));
-    }
   }
 
   /**
@@ -144,7 +140,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   @Override
   protected Object readResolve() throws ObjectStreamException {
     FilesFoundTrigger trigger = (FilesFoundTrigger) super.readResolve();
-    if (CollectionUtils.isEmpty(trigger.configs)) {
+    if (trigger.configs == null) {
       // Upgrade trigger created prior to v1.2.
       trigger.configs = new ArrayList<FilesFoundTriggerConfig>(Collections
           .singletonList(new FilesFoundTriggerConfig(directory, files,

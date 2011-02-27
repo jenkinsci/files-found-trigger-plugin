@@ -84,6 +84,13 @@ public class FilesFoundTriggerTest {
 
   /**
    */
+  private static final String XML_TEMPLATE_EMPTY_CONFIGS = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+      + "  <spec>%s</spec>\n"
+      + "  <configs/>\n"
+      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
+
+  /**
+   */
   @Rule
   public TemporaryFolderRule folder = new TemporaryFolderRule();
 
@@ -98,17 +105,16 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void getConfigsNull() {
-    assertThat(ObjectUtils.toString(create(SPEC,
-        (FilesFoundTriggerConfig[]) null).getConfigs()), is(Collections
-        .singletonList(emptyConfig()).toString()));
+    assertThat(create(SPEC, (FilesFoundTriggerConfig[]) null).getConfigs(),
+        is(Collections.<FilesFoundTriggerConfig> emptyList()));
   }
 
   /**
    */
   @Test
   public void getConfigsEmpty() {
-    assertThat(ObjectUtils.toString(create(SPEC).getConfigs()), is(Collections
-        .singletonList(emptyConfig()).toString()));
+    assertThat(create(SPEC).getConfigs(), is(Collections
+        .<FilesFoundTriggerConfig> emptyList()));
   }
 
   /**
@@ -121,7 +127,7 @@ public class FilesFoundTriggerTest {
   /**
    */
   @Test
-  public void runBuildScheduled() {
+  public void runAndScheduleBuild() {
     FilesFoundTriggerConfig config = foundConfig();
     FilesFoundTrigger trigger = create(SPEC, config);
     BuildableItem job = mock(BuildableItem.class);
@@ -133,9 +139,20 @@ public class FilesFoundTriggerTest {
   /**
    */
   @Test
-  public void runNoBuildScheduled() {
+  public void runAndDontScheduleBuild() {
     FilesFoundTriggerConfig config = notFoundConfig();
     FilesFoundTrigger trigger = create(SPEC, config);
+    BuildableItem job = mock(BuildableItem.class);
+    trigger.start(job, true);
+    trigger.run();
+    verifyZeroInteractions(job);
+  }
+
+  /**
+   */
+  @Test
+  public void runWithNoConfigs() {
+    FilesFoundTrigger trigger = create(SPEC);
     BuildableItem job = mock(BuildableItem.class);
     trigger.start(job, true);
     trigger.run();
@@ -169,6 +186,15 @@ public class FilesFoundTriggerTest {
   /**
    */
   @Test
+  public void writeToXmlEmptyConfigs() {
+    String xml = XStreamUtil.toXml(create(SPEC));
+    assertThat(xml, is(String.format(XML_TEMPLATE_EMPTY_CONFIGS, SPEC,
+        DIRECTORY, FILES, IGNORED_FILES)));
+  }
+
+  /**
+   */
+  @Test
   public void readFromXml() {
     FilesFoundTrigger trigger = XStreamUtil.fromXml(String.format(XML_TEMPLATE,
         SPEC, DIRECTORY, FILES, IGNORED_FILES));
@@ -179,25 +205,11 @@ public class FilesFoundTriggerTest {
   /**
    */
   @Test
-  public void readFromXmlWithNoConfigs() {
-    FilesFoundTrigger trigger = XStreamUtil.fromXml(String.format(
-        "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-            + "  <spec>%s</spec>\n"
-            + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
-    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
-        SPEC, emptyConfig()))));
-  }
-
-  /**
-   */
-  @Test
   public void readFromXmlWithEmptyConfigs() {
     FilesFoundTrigger trigger = XStreamUtil.fromXml(String.format(
-        "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-            + "  <spec>%s</spec>\n" + "  <configs>\n" + "  </configs>\n"
-            + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
-    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
-        SPEC, emptyConfig()))));
+        XML_TEMPLATE_EMPTY_CONFIGS, SPEC));
+    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils
+        .toString(create(SPEC))));
   }
 
   /**
