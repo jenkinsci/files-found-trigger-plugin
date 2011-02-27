@@ -66,6 +66,14 @@ public class FilesFoundTriggerCauseTest {
 
   /**
    */
+  private static final String XML_TEMPLATE = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+      + "  <directory>%s</directory>\n"
+      + "  <files>%s</files>\n"
+      + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
+
+  /**
+   */
   @Test
   public void getDirectory() {
     assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getDirectory(),
@@ -208,14 +216,18 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void unmarshal() {
-    String xml = String.format(
-        "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
-            + "  <directory>%s</directory>\n" + "  <files>%s</files>\n"
-            + "  <ignoredFiles>%s</ignoredFiles>\n"
-            + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>",
-        DIRECTORY, FILES, IGNORED_FILES);
-    FilesFoundTriggerCause cause = XStreamUtil.unmarshal(xml);
+  public void writeToXml() {
+    String xml = XStreamUtil.toXml(create(DIRECTORY, FILES, IGNORED_FILES));
+    assertThat(xml, is(String.format(XML_TEMPLATE, DIRECTORY, FILES,
+        IGNORED_FILES)));
+  }
+
+  /**
+   */
+  @Test
+  public void readFromXml() {
+    FilesFoundTriggerCause cause = XStreamUtil.fromXml(String.format(
+        XML_TEMPLATE, DIRECTORY, FILES, IGNORED_FILES));
     assertThat(ObjectUtils.toString(cause), is(ObjectUtils.toString(create(
         DIRECTORY, FILES, IGNORED_FILES))));
   }
@@ -223,11 +235,10 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
-  public void unmarshalWithMissingFields() {
-    String xml = String
+  public void readFromXmlWithMissingFields() {
+    FilesFoundTriggerCause cause = XStreamUtil.fromXml(String
         .format("<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
-            + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>");
-    FilesFoundTriggerCause cause = XStreamUtil.unmarshal(xml);
+            + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>"));
     assertThat(ObjectUtils.toString(cause), is(ObjectUtils.toString(create("",
         "", ""))));
   }

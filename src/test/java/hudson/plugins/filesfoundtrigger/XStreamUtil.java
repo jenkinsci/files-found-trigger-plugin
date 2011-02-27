@@ -25,11 +25,6 @@ package hudson.plugins.filesfoundtrigger;
 
 import hudson.util.XStream2;
 
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-
-import com.thoughtworks.xstream.io.xml.Dom4JReader;
-
 /**
  * Provides XStream utility methods for use by the unit tests.
  * 
@@ -38,7 +33,19 @@ import com.thoughtworks.xstream.io.xml.Dom4JReader;
 class XStreamUtil {
 
   /**
-   * Construct an object from the given XML element using {@link XStream2}.
+   * Convert the given object to an XML string using XStream.
+   * 
+   * @param obj
+   *          the object to convert
+   * @return the XML string
+   */
+  static String toXml(Object obj) {
+    XStream2 xStream2 = new XStream2();
+    return xStream2.toXML(obj);
+  }
+
+  /**
+   * Construct an object from the given XML element using XStream.
    * 
    * @param <T>
    *          the type of object to construct
@@ -46,20 +53,10 @@ class XStreamUtil {
    *          the XML element as a string
    * @return the newly constructed object
    */
-  static <T> T unmarshal(String xml) {
+  static <T> T fromXml(String xml) {
     XStream2 xStream2 = new XStream2();
-    Dom4JReader reader = null;
-    try {
-      reader = new Dom4JReader(DocumentHelper.parseText(xml));
-      @SuppressWarnings("unchecked")
-      T obj = (T) xStream2.unmarshal(reader);
-      return obj;
-    } catch (DocumentException ex) {
-      throw new RuntimeException(ex);
-    } finally {
-      if (reader != null) {
-        reader.close();
-      }
-    }
+    @SuppressWarnings("unchecked")
+    T obj = (T) xStream2.fromXML(xml);
+    return obj;
   }
 }

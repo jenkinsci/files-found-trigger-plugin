@@ -37,6 +37,7 @@ import java.util.List;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import antlr.ANTLRException;
@@ -53,8 +54,11 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
 
   /**
    * The list of configured file patterns.
+   * <p>
+   * Contains at least one item. Declared as an ArrayList to provide a
+   * consistent XML format.
    */
-  private List<FilesFoundTriggerConfig> configs;
+  private ArrayList<FilesFoundTriggerConfig> configs;
 
   /**
    * The base directory to use when locating files.
@@ -88,7 +92,10 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public FilesFoundTrigger(String spec, List<FilesFoundTriggerConfig> configs)
       throws ANTLRException {
     super(spec);
-    this.configs = fixNull(configs);
+    this.configs = new ArrayList<FilesFoundTriggerConfig>(fixNull(configs));
+    if (this.configs.isEmpty()) {
+      this.configs.add(new FilesFoundTriggerConfig("", "", ""));
+    }
   }
 
   /**
@@ -137,10 +144,11 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   @Override
   protected Object readResolve() throws ObjectStreamException {
     FilesFoundTrigger trigger = (FilesFoundTrigger) super.readResolve();
-    if (trigger.configs == null) {
+    if (CollectionUtils.isEmpty(trigger.configs)) {
       // Upgrade trigger created prior to v1.2.
-      trigger.configs = Collections.singletonList(new FilesFoundTriggerConfig(
-          directory, files, ignoredFiles));
+      trigger.configs = new ArrayList<FilesFoundTriggerConfig>(Collections
+          .singletonList(new FilesFoundTriggerConfig(directory, files,
+              ignoredFiles)));
     }
     return trigger;
   }
