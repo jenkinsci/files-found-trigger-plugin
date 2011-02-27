@@ -119,6 +119,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public String toString() {
     JSONObject json = new JSONObject();
     json.element("spec", spec);
+    json.element("tabs", tabs);
     List<String> configStrings = new ArrayList<String>();
     for (FilesFoundTriggerConfig config : configs) {
       configStrings.add(config.toString());
@@ -135,12 +136,13 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   protected Object readResolve() throws ObjectStreamException {
-    if (configs == null) {
+    FilesFoundTrigger trigger = (FilesFoundTrigger) super.readResolve();
+    if (trigger.configs == null) {
       // Upgrade trigger created prior to v1.2.
-      configs = Collections.singletonList(new FilesFoundTriggerConfig(
+      trigger.configs = Collections.singletonList(new FilesFoundTriggerConfig(
           directory, files, ignoredFiles));
     }
-    return this;
+    return trigger;
   }
 
   /**
