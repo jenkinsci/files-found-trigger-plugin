@@ -35,8 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.json.JSONObject;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import antlr.ANTLRException;
@@ -119,15 +117,8 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   public String toString() {
-    JSONObject json = new JSONObject();
-    json.element("spec", spec);
-    json.element("tabs", tabs);
-    List<String> configStrings = new ArrayList<String>();
-    for (FilesFoundTriggerConfig config : configs) {
-      configStrings.add(config.toString());
-    }
-    json.element("configs", configStrings);
-    return json.toString().replace('"', '\'');
+    return getClass().getSimpleName() + "{spec:" + spec + ",configs:" + configs
+        + "}";
   }
 
   /**

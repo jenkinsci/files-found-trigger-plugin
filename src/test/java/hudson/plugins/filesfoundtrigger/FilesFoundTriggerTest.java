@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import hudson.model.BuildableItem;
 import hudson.model.Item;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -200,6 +201,7 @@ public class FilesFoundTriggerTest {
         SPEC, DIRECTORY, FILES, IGNORED_FILES));
     assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
         SPEC, config()))));
+    assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
   /**
@@ -210,6 +212,7 @@ public class FilesFoundTriggerTest {
         XML_TEMPLATE_EMPTY_CONFIGS, SPEC));
     assertThat(ObjectUtils.toString(trigger), is(ObjectUtils
         .toString(create(SPEC))));
+    assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
   /**
@@ -230,6 +233,7 @@ public class FilesFoundTriggerTest {
                 SPEC, DIRECTORY));
     assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
         SPEC, new FilesFoundTriggerConfig(DIRECTORY, "", "")))));
+    assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
   /**
@@ -244,6 +248,7 @@ public class FilesFoundTriggerTest {
         DIRECTORY, FILES, IGNORED_FILES));
     assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
         SPEC, config()))));
+    assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
   /**
@@ -256,6 +261,7 @@ public class FilesFoundTriggerTest {
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
     assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
         SPEC, emptyConfig()))));
+    assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
   /**
@@ -348,5 +354,23 @@ public class FilesFoundTriggerTest {
    */
   private FilesFoundTriggerConfig notFoundConfig() {
     return new FilesFoundTriggerConfig("", "", "");
+  }
+
+  /**
+   * Get the value of the tabs field from the given trigger object.
+   * 
+   * @param trigger
+   *          the trigger to inspect
+   * @return the value of the tabs field
+   */
+  private Object getTabs(FilesFoundTrigger trigger) {
+    try {
+      Field field = FilesFoundTrigger.class.getSuperclass().getDeclaredField(
+          "tabs");
+      field.setAccessible(true);
+      return field.get(trigger);
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
   }
 }

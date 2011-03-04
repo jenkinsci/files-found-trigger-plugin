@@ -34,8 +34,6 @@ import hudson.util.RobustReflectionConverter;
 
 import java.io.File;
 
-import net.sf.json.JSONObject;
-
 import org.apache.tools.ant.types.FileSet;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -149,11 +147,8 @@ public final class FilesFoundTriggerConfig implements
    */
   @Override
   public String toString() {
-    JSONObject json = new JSONObject();
-    json.element("directory", directory);
-    json.element("files", files);
-    json.element("ignoredFiles", ignoredFiles);
-    return json.toString().replace('"', '\'');
+    return getClass().getSimpleName() + "{directory:" + directory + ",files:"
+        + files + ",ignoredFiles:" + ignoredFiles + "}";
   }
 
   /**

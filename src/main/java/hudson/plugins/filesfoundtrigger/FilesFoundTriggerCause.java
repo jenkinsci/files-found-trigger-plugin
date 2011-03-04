@@ -28,8 +28,6 @@ import hudson.util.RobustReflectionConverter;
 
 import java.util.Arrays;
 
-import net.sf.json.JSONObject;
-
 import org.kohsuke.stapler.export.Exported;
 
 import com.thoughtworks.xstream.converters.Converter;
@@ -148,11 +146,8 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String toString() {
-    JSONObject json = new JSONObject();
-    json.element("directory", directory);
-    json.element("files", files);
-    json.element("ignoredFiles", ignoredFiles);
-    return json.toString().replace('"', '\'');
+    return getClass().getSimpleName() + "{directory:" + directory + ",files:"
+        + files + ",ignoredFiles:" + ignoredFiles + "}";
   }
 
   /**
