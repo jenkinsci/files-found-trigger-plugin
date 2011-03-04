@@ -29,15 +29,18 @@ import hudson.model.BuildableItem;
 import hudson.model.Item;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
+import hudson.util.RobustReflectionConverter;
 
-import java.io.ObjectStreamException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import antlr.ANTLRException;
+
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * Build trigger that schedules a build when certain files are found. These
@@ -50,29 +53,26 @@ import antlr.ANTLRException;
 public final class FilesFoundTrigger extends Trigger<BuildableItem> {
 
   /**
-   * The list of configured file patterns.
-   * <p>
-   * Declared as an ArrayList to provide a consistent XML format.
-   */
-  private ArrayList<FilesFoundTriggerConfig> configs;
-
-  /**
    * The base directory to use when locating files.
    */
-  @Deprecated
-  private String directory;
+  private final String directory;
 
   /**
    * The pattern of files to locate under the base directory.
    */
-  @Deprecated
-  private String files;
+  private final String files;
 
   /**
    * The pattern of files to ignore when searching under the base directory.
    */
-  @Deprecated
-  private String ignoredFiles;
+  private final String ignoredFiles;
+
+  /**
+   * List of additional configured file patterns.
+   * <p>
+   * Declared as an ArrayList to provide a consistent XML format.
+   */
+  private final ArrayList<FilesFoundTriggerConfig> additionalConfigs;
 
   /**
    * Create a new {@link FilesFoundTrigger}.
@@ -88,7 +88,36 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public FilesFoundTrigger(String spec, List<FilesFoundTriggerConfig> configs)
       throws ANTLRException {
     super(spec);
-    this.configs = new ArrayList<FilesFoundTriggerConfig>(fixNull(configs));
+
+    ArrayList<FilesFoundTriggerConfig> configsCopy = new ArrayList<FilesFoundTriggerConfig>(
+        fixNull(configs));
+    FilesFoundTriggerConfig firstConfig;
+    if (configsCopy.isEmpty()) {
+      firstConfig = new FilesFoundTriggerConfig("", "", "");
+    } else {
+      firstConfig = configsCopy.remove(0);
+    }
+    this.directory = firstConfig.getDirectory();
+    this.files = firstConfig.getFiles();
+    this.ignoredFiles = firstConfig.getIgnoredFiles();
+    if (configsCopy.isEmpty()) {
+      configsCopy = null;
+    }
+    this.additionalConfigs = configsCopy;
+  }
+
+  /**
+   * Constructor intended to be called by XStream only. Sets the default field
+   * values, which will then be overridden if these fields exist in the
+   * configuration file.
+   */
+  @SuppressWarnings("unused")
+  // called reflectively by XStream
+  private FilesFoundTrigger() {
+    this.directory = "";
+    this.files = "";
+    this.ignoredFiles = "";
+    this.additionalConfigs = null;
   }
 
   /**
@@ -97,7 +126,12 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    * @return a list of {@link FilesFoundTriggerConfig}
    */
   public List<FilesFoundTriggerConfig> getConfigs() {
-    return configs;
+    List<FilesFoundTriggerConfig> allConfigs = new ArrayList<FilesFoundTriggerConfig>();
+    allConfigs.add(new FilesFoundTriggerConfig(directory, files, ignoredFiles));
+    if (additionalConfigs != null) {
+      allConfigs.addAll(additionalConfigs);
+    }
+    return allConfigs;
   }
 
   /**
@@ -105,7 +139,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   public void run() {
-    for (FilesFoundTriggerConfig config : configs) {
+    for (FilesFoundTriggerConfig config : getConfigs()) {
       if (config.filesFound()) {
         job.scheduleBuild(0, new FilesFoundTriggerCause(config));
         return;
@@ -117,26 +151,26 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "{spec:" + spec + ",configs:" + configs
-        + "}";
+    return getClass().getSimpleName() + "{spec:" + spec + ",configs:"
+        + getConfigs() + "}";
   }
 
   /**
-   * Read resolve method that upgrades data stored in previous formats.
-   * 
-   * @return the replacement object
-   * @throws ObjectStreamException
+   * {@link Converter} implementation for XStream. This converter uses the
+   * {@link PureJavaReflectionProvider}, which ensures that the default
+   * constructor is called.
    */
-  @Override
-  protected Object readResolve() throws ObjectStreamException {
-    FilesFoundTrigger trigger = (FilesFoundTrigger) super.readResolve();
-    if (trigger.configs == null) {
-      // Upgrade trigger created prior to v1.2.
-      trigger.configs = new ArrayList<FilesFoundTriggerConfig>(Collections
-          .singletonList(new FilesFoundTriggerConfig(directory, files,
-              ignoredFiles)));
+  public static final class ConverterImpl extends RobustReflectionConverter {
+
+    /**
+     * Class constructor.
+     * 
+     * @param mapper
+     *          the mapper
+     */
+    public ConverterImpl(Mapper mapper) {
+      super(mapper, new PureJavaReflectionProvider());
     }
-    return trigger;
   }
 
   /**
