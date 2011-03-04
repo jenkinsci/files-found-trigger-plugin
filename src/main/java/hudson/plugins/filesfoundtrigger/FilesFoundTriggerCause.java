@@ -61,7 +61,7 @@ public final class FilesFoundTriggerCause extends Cause {
    * Create a new {@link FilesFoundTriggerCause}.
    * 
    * @param config
-   *          the configuration that has scheduled a build
+   *          the configuration that has caused a build to be scheduled
    */
   FilesFoundTriggerCause(FilesFoundTriggerConfig config) {
     this.directory = config.getDirectory();

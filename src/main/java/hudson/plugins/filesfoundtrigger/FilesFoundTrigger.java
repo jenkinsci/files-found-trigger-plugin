@@ -54,8 +54,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   /**
    * The list of configured file patterns.
    * <p>
-   * Contains at least one item. Declared as an ArrayList to provide a
-   * consistent XML format.
+   * Declared as an ArrayList to provide a consistent XML format.
    */
   private ArrayList<FilesFoundTriggerConfig> configs;
 
@@ -81,7 +80,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    * Create a new {@link FilesFoundTrigger}.
    * 
    * @param spec
-   *          crontab specification that defines how often to poll the directory
+   *          crontab specification that defines how often to poll
    * @param configs
    *          the list of configured file patterns
    * @throws ANTLRException

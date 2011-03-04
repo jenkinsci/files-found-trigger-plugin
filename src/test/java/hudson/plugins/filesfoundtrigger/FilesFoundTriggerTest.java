@@ -296,7 +296,7 @@ public class FilesFoundTriggerTest {
    * Create a new {@link FilesFoundTrigger}.
    * 
    * @param spec
-   *          crontab specification that defines how often to poll the directory
+   *          crontab specification that defines how often to poll
    * @param configs
    *          the list of configured file patterns
    * @return a new trigger
@@ -315,7 +315,7 @@ public class FilesFoundTriggerTest {
   /**
    * Create a new {@link FilesFoundTriggerConfig}.
    * 
-   * @return a new config
+   * @return a new configuration
    */
   private FilesFoundTriggerConfig config() {
     return new FilesFoundTriggerConfig(DIRECTORY, FILES, IGNORED_FILES);
@@ -324,7 +324,7 @@ public class FilesFoundTriggerTest {
   /**
    * Create an empty {@link FilesFoundTriggerConfig}.
    * 
-   * @return an empty config
+   * @return an empty configuration
    */
   private FilesFoundTriggerConfig emptyConfig() {
     return new FilesFoundTriggerConfig("", "", "");
@@ -333,7 +333,7 @@ public class FilesFoundTriggerTest {
   /**
    * Create a new {@link FilesFoundTriggerConfig} that will find files.
    * 
-   * @return a new config that will find files
+   * @return a new configuration that will find files
    */
   private FilesFoundTriggerConfig foundConfig() {
     folder.newFile("test");
@@ -344,7 +344,7 @@ public class FilesFoundTriggerTest {
   /**
    * Create a new {@link FilesFoundTriggerConfig} that will not find files.
    * 
-   * @return a new config that will not find files
+   * @return a new configuration that will not find files
    */
   private FilesFoundTriggerConfig notFoundConfig() {
     return new FilesFoundTriggerConfig("", "", "");
