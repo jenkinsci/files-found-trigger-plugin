@@ -81,12 +81,6 @@ public class FilesFoundTriggerTest {
 
   /**
    */
-  private static final String XML_TEMPLATE_MISSING_FIELDS = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-      + "  <spec>%s</spec>\n"
-      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
-
-  /**
-   */
   private static final String XML_TEMPLATE_ADDITIONAL_CONFIGS = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
       + "  <spec>%s</spec>\n"
       + "  <directory>%s</directory>\n"
@@ -118,23 +112,32 @@ public class FilesFoundTriggerTest {
   @Test
   public void getConfigsNull() {
     assertThat(ObjectUtils.toString(create(SPEC,
-        (FilesFoundTriggerConfig[]) null).getConfigs()), is(ObjectUtils
-        .toString(singletonList(emptyConfig()))));
+        (FilesFoundTriggerConfig[]) null).getConfigs()), is(singletonList(
+        emptyConfig()).toString()));
   }
 
   /**
    */
   @Test
   public void getConfigsEmpty() {
-    assertThat(ObjectUtils.toString(create(SPEC).getConfigs()), is(ObjectUtils
-        .toString(singletonList(emptyConfig()))));
+    assertThat(ObjectUtils.toString(create(SPEC).getConfigs()),
+        is(singletonList(emptyConfig()).toString()));
   }
 
   /**
    */
   @Test
-  public void getConfigs() {
-    assertThat(create(SPEC, config(), config()).getConfigs().size(), is(2));
+  public void getConfigsOne() {
+    assertThat(ObjectUtils.toString(create(SPEC, config()).getConfigs()),
+        is(Arrays.asList(config()).toString()));
+  }
+
+  /**
+   */
+  @Test
+  public void getConfigsTwo() {
+    assertThat(ObjectUtils.toString(create(SPEC, config(), config())
+        .getConfigs()), is(Arrays.asList(config(), config()).toString()));
   }
 
   /**
@@ -233,9 +236,31 @@ public class FilesFoundTriggerTest {
   @Test
   public void readFromXmlWithMissingFields() {
     FilesFoundTrigger trigger = XStreamUtil.fromXml(String.format(
-        XML_TEMPLATE_MISSING_FIELDS, SPEC));
+        "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+            + "  <spec>%s</spec>\n"
+            + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
     assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
         SPEC, new FilesFoundTriggerConfig("", "", "")))));
+    assertThat("tabs", getTabs(trigger), not(nullValue()));
+  }
+
+  /**
+   */
+  @Test
+  public void readFromXmlWithAdditionalConfigsAndMissingFields() {
+    FilesFoundTrigger trigger = XStreamUtil
+        .fromXml(String
+            .format(
+                "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
+                    + "  <spec>%s</spec>\n"
+                    + "  <additionalConfigs>\n"
+                    + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+                    + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+                    + "  </additionalConfigs>\n"
+                    + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>",
+                SPEC));
+    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(create(
+        SPEC, emptyConfig(), emptyConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
