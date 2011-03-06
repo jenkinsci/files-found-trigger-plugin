@@ -23,6 +23,10 @@
  */
 package hudson.plugins.filesfoundtrigger;
 
+import static hudson.plugins.filesfoundtrigger.Support.DIRECTORY;
+import static hudson.plugins.filesfoundtrigger.Support.FILES;
+import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
+import static hudson.plugins.filesfoundtrigger.Support.config;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -31,6 +35,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 import hudson.util.FormValidation;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,18 +50,6 @@ public class FilesFoundTriggerConfigTest {
 
   /**
    */
-  private static final String DIRECTORY = "C:/";
-
-  /**
-   */
-  private static final String FILES = "**";
-
-  /**
-   */
-  private static final String IGNORED_FILES = "ignore";
-
-  /**
-   */
   @Rule
   public TemporaryFolderRule folder = new TemporaryFolderRule();
 
@@ -64,7 +57,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getDirectory() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getDirectory(),
+    assertThat(config(DIRECTORY, FILES, IGNORED_FILES).getDirectory(),
         is(DIRECTORY));
   }
 
@@ -72,7 +65,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getDirectoryTrimmed() {
-    assertThat(create("  " + DIRECTORY + "  ", FILES, IGNORED_FILES)
+    assertThat(config("  " + DIRECTORY + "  ", FILES, IGNORED_FILES)
         .getDirectory(), is(DIRECTORY));
   }
 
@@ -80,7 +73,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getFiles() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getFiles(), is(FILES));
+    assertThat(config(DIRECTORY, FILES, IGNORED_FILES).getFiles(), is(FILES));
   }
 
   /**
@@ -88,7 +81,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void getFilesTrimmed() {
     assertThat(
-        create(DIRECTORY, "  " + FILES + "  ", IGNORED_FILES).getFiles(),
+        config(DIRECTORY, "  " + FILES + "  ", IGNORED_FILES).getFiles(),
         is(FILES));
   }
 
@@ -96,7 +89,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getIgnoredFiles() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).getIgnoredFiles(),
+    assertThat(config(DIRECTORY, FILES, IGNORED_FILES).getIgnoredFiles(),
         is(IGNORED_FILES));
   }
 
@@ -104,7 +97,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getIgnoredFilesTrimmed() {
-    assertThat(create(DIRECTORY, FILES, "  " + IGNORED_FILES + "  ")
+    assertThat(config(DIRECTORY, FILES, "  " + IGNORED_FILES + "  ")
         .getIgnoredFiles(), is(IGNORED_FILES));
   }
 
@@ -112,7 +105,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void filesFoundDirectoryNotSpecified() {
-    FilesFoundTriggerConfig config = create("", FILES, IGNORED_FILES);
+    FilesFoundTriggerConfig config = config("", FILES, IGNORED_FILES);
     assertThat(config.filesFound(), is(false));
   }
 
@@ -121,7 +114,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void filesFoundDirectoryNotFound() {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
-    FilesFoundTriggerConfig config = create(nonExistentDirectory
+    FilesFoundTriggerConfig config = config(nonExistentDirectory
         .getAbsolutePath(), FILES, IGNORED_FILES);
     assertThat(config.filesFound(), is(false));
   }
@@ -130,17 +123,19 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void filesFoundFilesNotSpecified() {
-    FilesFoundTriggerConfig config = create(folder.getRoot().getAbsolutePath(),
+    FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
         "", IGNORED_FILES);
     assertThat(config.filesFound(), is(false));
   }
 
   /**
+   * @throws IOException
+   *           If an I/O error occurred
    */
   @Test
-  public void filesFoundSuccess() {
+  public void filesFoundSuccess() throws IOException {
     folder.newFile("test");
-    FilesFoundTriggerConfig config = create(folder.getRoot().getAbsolutePath(),
+    FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
         FILES, IGNORED_FILES);
     assertThat(config.filesFound(), is(true));
   }
@@ -149,17 +144,19 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void filesFoundNoFiles() {
-    FilesFoundTriggerConfig config = create(folder.getRoot().getAbsolutePath(),
+    FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
         FILES, IGNORED_FILES);
     assertThat(config.filesFound(), is(false));
   }
 
   /**
+   * @throws IOException
+   *           If an I/O error occurred
    */
   @Test
-  public void filesFoundNoUnignoredFiles() {
+  public void filesFoundNoUnignoredFiles() throws IOException {
     folder.newFile("test");
-    FilesFoundTriggerConfig config = create(folder.getRoot().getAbsolutePath(),
+    FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
         FILES, "**");
     assertThat(config.filesFound(), is(false));
   }
@@ -168,7 +165,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void toStringContainsDirectory() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(config(DIRECTORY, FILES, IGNORED_FILES).toString(),
         containsString(DIRECTORY));
   }
 
@@ -176,7 +173,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void toStringContainsFiles() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(config(DIRECTORY, FILES, IGNORED_FILES).toString(),
         containsString(FILES));
   }
 
@@ -184,7 +181,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void toStringContainsIgnoredFiles() {
-    assertThat(create(DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(config(DIRECTORY, FILES, IGNORED_FILES).toString(),
         containsString(IGNORED_FILES));
   }
 
@@ -236,29 +233,15 @@ public class FilesFoundTriggerConfigTest {
   }
 
   /**
+   * @throws IOException
+   *           If an I/O error occurred
    */
   @Test
-  public void doTestConfigurationFilesFound() {
+  public void doTestConfigurationFilesFound() throws IOException {
     folder.newFile("test");
     FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
         .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
             IGNORED_FILES);
     assertThat(result.kind, is(FormValidation.Kind.OK));
-  }
-
-  /**
-   * Create a new {@link FilesFoundTriggerConfig}.
-   * 
-   * @param directory
-   *          the base directory
-   * @param files
-   *          the pattern of files
-   * @param ignoredFiles
-   *          the pattern of ignored files
-   * @return a new config
-   */
-  private FilesFoundTriggerConfig create(String directory, String files,
-      String ignoredFiles) {
-    return new FilesFoundTriggerConfig(directory, files, ignoredFiles);
   }
 }

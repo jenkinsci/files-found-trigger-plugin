@@ -26,6 +26,7 @@ package hudson.plugins.filesfoundtrigger;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 
@@ -55,11 +56,9 @@ public class TemporaryFolderRule extends ExternalResource {
    * {@inheritDoc}
    */
   @Override
-  protected void before() throws Throwable {
+  protected void before() throws IOException {
     folder.create();
-    if (!folder.getRoot().isDirectory()) {
-      throw new IOException("Unable to create directory: " + folder.getRoot());
-    }
+    FileUtils.forceMkdir(folder.getRoot());
   }
 
   /**
@@ -76,33 +75,13 @@ public class TemporaryFolderRule extends ExternalResource {
    * @param fileName
    *          the name that will be given to the new file
    * @return the new file
+   * @throws IOException
+   *           If an I/O error occurred
    */
-  public File newFile(String fileName) {
-    File file;
-    try {
-      file = folder.newFile(fileName);
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-    if (!file.isFile()) {
-      throw new RuntimeException("Unable to create file: " + file);
-    }
+  public File newFile(String fileName) throws IOException {
+    File file = new File(folder.getRoot(), fileName);
+    FileUtils.touch(file);
     return file;
-  }
-
-  /**
-   * Create a new folder with the given name under the temporary folder.
-   * 
-   * @param folderName
-   *          the name that will be given to the new folder
-   * @return the new folder
-   */
-  public File newFolder(String folderName) {
-    File directory = folder.newFolder(folderName);
-    if (!directory.isDirectory()) {
-      throw new RuntimeException("Unable to create directory: " + directory);
-    }
-    return directory;
   }
 
   /**
