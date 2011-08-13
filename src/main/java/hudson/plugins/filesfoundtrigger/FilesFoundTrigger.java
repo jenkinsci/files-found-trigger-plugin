@@ -148,6 +148,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   }
 
   /**
+   * {@inheritDoc}
    */
   @Override
   public String toString() {
