@@ -35,7 +35,15 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 import hudson.Util;
+import hudson.model.Hudson;
+import hudson.model.Saveable;
+import hudson.slaves.NodeProperty;
+import hudson.slaves.NodePropertyDescriptor;
+import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 
 import java.io.File;
@@ -43,8 +51,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.common.base.Objects;
 
@@ -53,12 +65,28 @@ import com.google.common.base.Objects;
  * 
  * @author Steven G. Brown
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Hudson.class)
 public class FilesFoundTriggerConfigTest {
 
   /**
    */
   @Rule
   public TemporaryFolderRule folder = new TemporaryFolderRule();
+
+  private DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties;
+
+  /**
+   */
+  @Before
+  public void setUp() {
+    Hudson hudson = mock(Hudson.class);
+    globalNodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(
+        Saveable.NOOP);
+    when(hudson.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
+    mockStatic(Hudson.class);
+    when(Hudson.getInstance()).thenReturn(hudson);
+  }
 
   /**
    */

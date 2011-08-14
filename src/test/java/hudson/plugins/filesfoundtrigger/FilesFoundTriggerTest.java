@@ -42,21 +42,34 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 import hudson.model.BuildableItem;
+import hudson.model.Hudson;
 import hudson.model.Item;
+import hudson.model.Saveable;
+import hudson.slaves.NodeProperty;
+import hudson.slaves.NodePropertyDescriptor;
+import hudson.util.DescribableList;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * Unit test for the {@link FilesFoundTrigger} class.
  * 
  * @author Steven G. Brown
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Hudson.class)
 @SuppressWarnings("boxing")
 public class FilesFoundTriggerTest {
 
@@ -89,6 +102,20 @@ public class FilesFoundTriggerTest {
    */
   @Rule
   public TemporaryFolderRule folder = new TemporaryFolderRule();
+
+  private DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties;
+
+  /**
+   */
+  @Before
+  public void setUp() {
+    Hudson hudson = mock(Hudson.class);
+    globalNodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(
+        Saveable.NOOP);
+    when(hudson.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
+    mockStatic(Hudson.class);
+    when(Hudson.getInstance()).thenReturn(hudson);
+  }
 
   /**
    */

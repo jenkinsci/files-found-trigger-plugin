@@ -24,11 +24,14 @@
 package hudson.plugins.filesfoundtrigger;
 
 import static hudson.Util.fixNull;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.slaves.NodeProperty;
 import hudson.util.FormValidation;
 import hudson.util.RobustReflectionConverter;
 
@@ -156,6 +159,34 @@ public final class FilesFoundTriggerConfig implements
   }
 
   /**
+   * Expand environment variables and global properties in each field.
+   * 
+   * @return the expanded configuration
+   */
+  FilesFoundTriggerConfig expand() {
+    EnvVars vars = new EnvVars();
+
+    // Environment variables
+    vars.overrideAll(System.getenv());
+
+    // Global properties
+    for (NodeProperty<?> property : Hudson.getInstance()
+        .getGlobalNodeProperties()) {
+      if (property instanceof EnvironmentVariablesNodeProperty) {
+        vars.overrideAll(((EnvironmentVariablesNodeProperty) property)
+            .getEnvVars());
+      }
+    }
+
+    // Expand each field
+    String expDirectory = vars.expand(getDirectory());
+    String expFiles = vars.expand(getFiles());
+    String expIgnoredFiles = vars.expand(getIgnoredFiles());
+
+    return new FilesFoundTriggerConfig(expDirectory, expFiles, expIgnoredFiles);
+  }
+
+  /**
    * Search for the files.
    * 
    * @return the files found
@@ -249,6 +280,7 @@ public final class FilesFoundTriggerConfig implements
         @QueryParameter("directory") final String directory,
         @QueryParameter("files") final String files,
         @QueryParameter("ignoredFiles") final String ignoredFiles) {
+
       FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(directory,
           files, ignoredFiles);
       if (!config.directorySpecified()) {
@@ -257,10 +289,13 @@ public final class FilesFoundTriggerConfig implements
       if (!config.filesSpecified()) {
         return FormValidation.error(Messages.FilesNotSpecified());
       }
-      if (!config.directoryFound()) {
+
+      FilesFoundTriggerConfig expandedConfig = config.expand();
+      if (!expandedConfig.directoryFound()) {
         return FormValidation.warning(Messages.DirectoryNotFound());
       }
-      List<String> found = config.findFiles();
+
+      List<String> found = expandedConfig.findFiles();
       if (found.isEmpty()) {
         return FormValidation.ok(Messages.NoFilesFound());
       }
