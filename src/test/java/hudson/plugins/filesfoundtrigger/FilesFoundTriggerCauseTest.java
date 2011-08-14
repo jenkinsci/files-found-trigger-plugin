@@ -38,7 +38,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.junit.Test;
 
 /**
@@ -212,8 +211,8 @@ public class FilesFoundTriggerCauseTest {
   public void readFromXml() {
     FilesFoundTriggerCause cause = fromXml(String.format(XML, DIRECTORY, FILES,
         IGNORED_FILES));
-    assertThat(ObjectUtils.toString(cause), is(ObjectUtils.toString(cause(
-        DIRECTORY, FILES, IGNORED_FILES))));
+    assertThat(String.valueOf(cause), is(String.valueOf(cause(DIRECTORY, FILES,
+        IGNORED_FILES))));
   }
 
   /**
@@ -223,7 +222,6 @@ public class FilesFoundTriggerCauseTest {
     FilesFoundTriggerCause cause = fromXml(String
         .format("<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>"));
-    assertThat(ObjectUtils.toString(cause), is(ObjectUtils.toString(cause("",
-        "", ""))));
+    assertThat(String.valueOf(cause), is(String.valueOf(cause("", "", ""))));
   }
 }

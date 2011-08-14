@@ -49,7 +49,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -102,33 +101,32 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void getConfigsNull() {
-    assertThat(ObjectUtils.toString(trigger(SPEC,
-        (FilesFoundTriggerConfig[]) null).getConfigs()), is(singletonList(
-        emptyConfig()).toString()));
+    assertThat(String.valueOf(trigger(SPEC, (FilesFoundTriggerConfig[]) null)
+        .getConfigs()), is(singletonList(emptyConfig()).toString()));
   }
 
   /**
    */
   @Test
   public void getConfigsEmpty() {
-    assertThat(ObjectUtils.toString(trigger(SPEC).getConfigs()),
-        is(singletonList(emptyConfig()).toString()));
+    assertThat(String.valueOf(trigger(SPEC).getConfigs()), is(singletonList(
+        emptyConfig()).toString()));
   }
 
   /**
    */
   @Test
   public void getConfigsOne() {
-    assertThat(ObjectUtils.toString(trigger(SPEC, config()).getConfigs()),
-        is(Arrays.asList(config()).toString()));
+    assertThat(String.valueOf(trigger(SPEC, config()).getConfigs()), is(Arrays
+        .asList(config()).toString()));
   }
 
   /**
    */
   @Test
   public void getConfigsTwo() {
-    assertThat(ObjectUtils.toString(trigger(SPEC, config(), config())
-        .getConfigs()), is(Arrays.asList(config(), config()).toString()));
+    assertThat(String.valueOf(trigger(SPEC, config(), config()).getConfigs()),
+        is(Arrays.asList(config(), config()).toString()));
   }
 
   /**
@@ -207,8 +205,8 @@ public class FilesFoundTriggerTest {
   public void readFromXml() {
     FilesFoundTrigger trigger = fromXml(String.format(XML, SPEC, DIRECTORY,
         FILES, IGNORED_FILES));
-    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(trigger(
-        SPEC, config()))));
+    assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC,
+        config()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
@@ -218,8 +216,8 @@ public class FilesFoundTriggerTest {
   public void readFromXmlWithAdditionalConfigs() {
     FilesFoundTrigger trigger = fromXml(String.format(XML_ADDITIONAL_CONFIGS,
         SPEC, DIRECTORY, FILES, IGNORED_FILES, DIRECTORY, FILES, IGNORED_FILES));
-    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(trigger(
-        SPEC, config(), config()))));
+    assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC,
+        config(), config()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
@@ -231,8 +229,8 @@ public class FilesFoundTriggerTest {
         "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
             + "  <spec>%s</spec>\n"
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
-    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(trigger(
-        SPEC, new FilesFoundTriggerConfig("", "", "")))));
+    assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC,
+        new FilesFoundTriggerConfig("", "", "")))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
@@ -249,8 +247,8 @@ public class FilesFoundTriggerTest {
                 + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
                 + "  </additionalConfigs>\n"
                 + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
-    assertThat(ObjectUtils.toString(trigger), is(ObjectUtils.toString(trigger(
-        SPEC, emptyConfig(), emptyConfig()))));
+    assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC,
+        emptyConfig(), emptyConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
