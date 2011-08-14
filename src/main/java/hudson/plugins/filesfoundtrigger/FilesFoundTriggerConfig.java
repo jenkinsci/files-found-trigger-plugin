@@ -259,10 +259,15 @@ public final class FilesFoundTriggerConfig implements
       if (!config.directoryFound()) {
         return FormValidation.warning(Messages.DirectoryNotFound());
       }
-      if (config.findFiles().isEmpty()) {
-        return FormValidation.ok(Messages.FilesNotFound());
+      List<String> found = config.findFiles();
+      if (found.isEmpty()) {
+        return FormValidation.ok(Messages.NoFilesFound());
       }
-      return FormValidation.ok(Messages.FilesFound());
+      if (found.size() == 1) {
+        return FormValidation.ok(Messages.SingleFileFound(found.get(0)));
+      }
+      return FormValidation.ok(Messages.MultipleFilesFound(Integer
+          .valueOf(found.size())));
     }
   }
 }

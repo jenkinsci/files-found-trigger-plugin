@@ -239,7 +239,7 @@ public class FilesFoundTriggerConfigTest {
   /**
    */
   @Test
-  public void doTestConfigurationFilesNotFound() {
+  public void doTestConfigurationNoFilesFound() {
     FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
         .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
             IGNORED_FILES);
@@ -251,8 +251,22 @@ public class FilesFoundTriggerConfigTest {
    *           If an I/O error occurred
    */
   @Test
-  public void doTestConfigurationFilesFound() throws IOException {
+  public void doTestConfigurationOneFileFound() throws IOException {
     folder.newFile("test");
+    FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
+        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
+            IGNORED_FILES);
+    assertThat(result.kind, is(FormValidation.Kind.OK));
+  }
+
+  /**
+   * @throws IOException
+   *           If an I/O error occurred
+   */
+  @Test
+  public void doTestConfigurationTwoFilesFound() throws IOException {
+    folder.newFile("test");
+    folder.newFile("test2");
     FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
         .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
             IGNORED_FILES);
