@@ -26,10 +26,9 @@ package hudson.plugins.filesfoundtrigger;
 import hudson.model.Cause;
 import hudson.util.RobustReflectionConverter;
 
-import java.util.Arrays;
-
 import org.kohsuke.stapler.export.Exported;
 
+import com.google.common.base.Objects;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.mapper.Mapper;
@@ -125,7 +124,7 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public int hashCode() {
-    return Arrays.hashCode(new String[] { directory, files, ignoredFiles });
+    return Objects.hashCode(directory, files, ignoredFiles);
   }
 
   /**
@@ -146,8 +145,8 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "{directory:" + directory + ",files:"
-        + files + ",ignoredFiles:" + ignoredFiles + "}";
+    return Objects.toStringHelper(this).add("directory", directory).add(
+        "files", files).add("ignoredFiles", ignoredFiles).toString();
   }
 
   /**

@@ -38,6 +38,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import antlr.ANTLRException;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.mapper.Mapper;
@@ -126,12 +128,13 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    * @return a list of {@link FilesFoundTriggerConfig}
    */
   public List<FilesFoundTriggerConfig> getConfigs() {
-    List<FilesFoundTriggerConfig> allConfigs = new ArrayList<FilesFoundTriggerConfig>();
-    allConfigs.add(new FilesFoundTriggerConfig(directory, files, ignoredFiles));
+    ImmutableList.Builder<FilesFoundTriggerConfig> builder = ImmutableList
+        .builder();
+    builder.add(new FilesFoundTriggerConfig(directory, files, ignoredFiles));
     if (additionalConfigs != null) {
-      allConfigs.addAll(additionalConfigs);
+      builder.addAll(additionalConfigs);
     }
-    return allConfigs;
+    return builder.build();
   }
 
   /**
@@ -152,8 +155,8 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "{spec:" + spec + ",configs:"
-        + getConfigs() + "}";
+    return Objects.toStringHelper(this).add("spec", spec).add("configs",
+        getConfigs()).toString();
   }
 
   /**

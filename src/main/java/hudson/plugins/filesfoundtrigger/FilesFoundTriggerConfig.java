@@ -33,7 +33,6 @@ import hudson.util.FormValidation;
 import hudson.util.RobustReflectionConverter;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +40,8 @@ import org.apache.tools.ant.types.FileSet;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.mapper.Mapper;
@@ -150,8 +151,8 @@ public final class FilesFoundTriggerConfig implements
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "{directory:" + directory + ",files:"
-        + files + ",ignoredFiles:" + ignoredFiles + "}";
+    return Objects.toStringHelper(this).add("directory", directory).add(
+        "files", files).add("ignoredFiles", ignoredFiles).toString();
   }
 
   /**
@@ -165,7 +166,7 @@ public final class FilesFoundTriggerConfig implements
           getFiles(), getIgnoredFiles());
       fileSet.setDefaultexcludes(false);
       String[] found = fileSet.getDirectoryScanner().getIncludedFiles();
-      return Collections.unmodifiableList(Arrays.asList(found));
+      return ImmutableList.copyOf(found);
     }
     return Collections.emptyList();
   }
