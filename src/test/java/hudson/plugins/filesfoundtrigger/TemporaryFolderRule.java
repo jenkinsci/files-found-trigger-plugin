@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2010 Steven G. Brown
+ * Copyright (c) 2011 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +26,10 @@ package hudson.plugins.filesfoundtrigger;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
+
+import com.google.common.io.Files;
 
 /**
  * Replacement for the {@link TemporaryFolder} JUnit rule, which (as of JUnit
@@ -41,24 +42,16 @@ import org.junit.rules.TemporaryFolder;
 public class TemporaryFolderRule extends ExternalResource {
 
   /**
-   * The {@link TemporaryFolder} delegate.
+   * The temporary folder.
    */
-  private final TemporaryFolder folder;
-
-  /**
-   * Create a new {@link TemporaryFolderRule}.
-   */
-  public TemporaryFolderRule() {
-    this.folder = new TemporaryFolder();
-  }
+  private File temporaryFolder;
 
   /**
    * {@inheritDoc}
    */
   @Override
   protected void before() throws IOException {
-    folder.create();
-    FileUtils.forceMkdir(folder.getRoot());
+    temporaryFolder = Files.createTempDir();
   }
 
   /**
@@ -66,7 +59,11 @@ public class TemporaryFolderRule extends ExternalResource {
    */
   @Override
   protected void after() {
-    folder.delete();
+    try {
+      Files.deleteRecursively(temporaryFolder);
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   /**
@@ -79,8 +76,8 @@ public class TemporaryFolderRule extends ExternalResource {
    *           If an I/O error occurred
    */
   public File newFile(String fileName) throws IOException {
-    File file = new File(folder.getRoot(), fileName);
-    FileUtils.touch(file);
+    File file = new File(temporaryFolder, fileName);
+    Files.touch(file);
     return file;
   }
 
@@ -90,6 +87,6 @@ public class TemporaryFolderRule extends ExternalResource {
    * @return the location of this temporary folder.
    */
   public File getRoot() {
-    return folder.getRoot();
+    return temporaryFolder;
   }
 }
