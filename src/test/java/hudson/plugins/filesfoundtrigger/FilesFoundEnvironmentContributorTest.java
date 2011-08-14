@@ -63,9 +63,9 @@ public class FilesFoundEnvironmentContributorTest {
   @Test
   public void filesFoundCause() {
     Map<String, String> expected = new HashMap<String, String>();
-    expected.put("filesfound_directory", DIRECTORY);
-    expected.put("filesfound_includes", FILES);
-    expected.put("filesfound_excludes", IGNORED_FILES);
+    expected.put("filesfound_setting_directory", DIRECTORY);
+    expected.put("filesfound_setting_files", FILES);
+    expected.put("filesfound_setting_ignoredfiles", IGNORED_FILES);
 
     FilesFoundTriggerCause cause = cause(DIRECTORY, FILES, IGNORED_FILES);
     when(run.getCause(FilesFoundTriggerCause.class)).thenReturn(cause);

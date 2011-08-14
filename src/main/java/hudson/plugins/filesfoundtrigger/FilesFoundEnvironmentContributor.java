@@ -53,12 +53,12 @@ public final class FilesFoundEnvironmentContributor extends
     FilesFoundTriggerCause cause = run.getCause(FilesFoundTriggerCause.class);
     if (cause != null) {
       envVars.put(name("directory"), cause.getDirectory());
-      envVars.put(name("includes"), cause.getFiles());
-      envVars.put(name("excludes"), cause.getIgnoredFiles());
+      envVars.put(name("files"), cause.getFiles());
+      envVars.put(name("ignoredfiles"), cause.getIgnoredFiles());
     }
   }
 
   private String name(String envVar) {
-    return "filesfound_" + envVar;
+    return "filesfound_setting_" + envVar;
   }
 }
