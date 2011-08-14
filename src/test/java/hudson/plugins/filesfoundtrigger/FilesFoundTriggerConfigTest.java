@@ -27,11 +27,15 @@ import static hudson.plugins.filesfoundtrigger.Support.DIRECTORY;
 import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.config;
+import static hudson.util.FormValidation.Kind.ERROR;
+import static hudson.util.FormValidation.Kind.OK;
+import static hudson.util.FormValidation.Kind.WARNING;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
+import hudson.Util;
 import hudson.util.FormValidation;
 
 import java.io.File;
@@ -41,6 +45,8 @@ import java.util.Collections;
 
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.common.base.Objects;
 
 /**
  * Unit test for the {@link FilesFoundTriggerConfig} class.
@@ -211,18 +217,16 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void doTestConfigurationDirectoryNotSpecified() {
-    FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
-        .doTestConfiguration("", FILES, IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.ERROR));
+    assertThat(validate("", FILES, IGNORED_FILES), is(validation(ERROR,
+        Messages.DirectoryNotSpecified())));
   }
 
   /**
    */
   @Test
   public void doTestConfigurationFilesNotSpecified() {
-    FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
-        .doTestConfiguration(DIRECTORY, "", IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.ERROR));
+    assertThat(validate(DIRECTORY, "", IGNORED_FILES), is(validation(ERROR,
+        Messages.FilesNotSpecified())));
   }
 
   /**
@@ -230,20 +234,16 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void doTestConfigurationDirectoryNotFound() {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
-    FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
-        .doTestConfiguration(nonExistentDirectory.getAbsolutePath(), FILES,
-            IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.WARNING));
+    assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
   }
 
   /**
    */
   @Test
   public void doTestConfigurationNoFilesFound() {
-    FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
-        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
-            IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.OK));
+    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES,
+        IGNORED_FILES), is(validation(OK, Messages.NoFilesFound())));
   }
 
   /**
@@ -253,23 +253,62 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void doTestConfigurationOneFileFound() throws IOException {
     folder.newFile("test");
-    FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
-        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
-            IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.OK));
+    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES,
+        IGNORED_FILES), is(validation(OK, Messages.SingleFileFound("test"))));
   }
 
   /**
    * @throws IOException
    *           If an I/O error occurred
    */
+  @SuppressWarnings("boxing")
   @Test
   public void doTestConfigurationTwoFilesFound() throws IOException {
     folder.newFile("test");
     folder.newFile("test2");
-    FormValidation result = new FilesFoundTriggerConfig.DescriptorImpl()
-        .doTestConfiguration(folder.getRoot().getAbsolutePath(), FILES,
-            IGNORED_FILES);
-    assertThat(result.kind, is(FormValidation.Kind.OK));
+    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES,
+        IGNORED_FILES), is(validation(OK, Messages.MultipleFilesFound(2))));
+  }
+
+  private static Validation validate(String directory, String files,
+      String ignoredFiles) {
+    FormValidation formValidation = new FilesFoundTriggerConfig.DescriptorImpl()
+        .doTestConfiguration(directory, files, ignoredFiles);
+    return new Validation(formValidation.kind, formValidation.getMessage());
+  }
+
+  private static Validation validation(FormValidation.Kind kind, String message) {
+    String escapedMessage = Util.escape(message);
+    return new Validation(kind, escapedMessage);
+  }
+
+  private static class Validation {
+    private final FormValidation.Kind kind;
+    private final String escapedMessage;
+
+    Validation(FormValidation.Kind kind, String escapedMessage) {
+      this.kind = kind;
+      this.escapedMessage = escapedMessage;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(kind, escapedMessage);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof Validation) {
+        Validation other = (Validation) obj;
+        return Objects.equal(kind, other.kind)
+            && Objects.equal(escapedMessage, other.escapedMessage);
+      }
+      return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+      return kind.toString() + ": " + escapedMessage;
+    }
   }
 }
