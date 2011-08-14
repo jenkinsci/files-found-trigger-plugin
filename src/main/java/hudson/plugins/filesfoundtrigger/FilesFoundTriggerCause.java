@@ -35,6 +35,8 @@ import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * The cause of a build that was started by a {@link FilesFoundTrigger}.
+ * 
+ * @author Steven G. Brown
  */
 public final class FilesFoundTriggerCause extends Cause {
 
