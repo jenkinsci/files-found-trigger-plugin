@@ -61,7 +61,7 @@ public class FilesFoundEnvironmentContributorTest {
   /**
    */
   @Test
-  public void testEnvVars() {
+  public void filesFoundCause() {
     Map<String, String> expected = new HashMap<String, String>();
     expected.put("filesfound_directory", DIRECTORY);
     expected.put("filesfound_includes", FILES);
@@ -69,17 +69,17 @@ public class FilesFoundEnvironmentContributorTest {
 
     FilesFoundTriggerCause cause = cause(DIRECTORY, FILES, IGNORED_FILES);
     when(run.getCause(FilesFoundTriggerCause.class)).thenReturn(cause);
-    assertThat(envVars(), is(expected));
+    assertThat(contributeEnvVars(), is(expected));
   }
 
   /**
    */
   @Test
-  public void testNoCause() {
-    assertThat(envVars(), is(Collections.<String, String> emptyMap()));
+  public void noFilesFoundCause() {
+    assertThat(contributeEnvVars(), is(Collections.<String, String> emptyMap()));
   }
 
-  private Map<String, String> envVars() {
+  private Map<String, String> contributeEnvVars() {
     EnvVars envVars = new EnvVars();
     BuildListener buildListener = mock(BuildListener.class);
     new FilesFoundEnvironmentContributor().buildEnvironmentFor(run, envVars,
