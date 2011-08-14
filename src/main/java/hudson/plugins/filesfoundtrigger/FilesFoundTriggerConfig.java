@@ -33,6 +33,9 @@ import hudson.util.FormValidation;
 import hudson.util.RobustReflectionConverter;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.tools.ant.types.FileSet;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -154,16 +157,17 @@ public final class FilesFoundTriggerConfig implements
   /**
    * Search for the files.
    * 
-   * @return whether at least one file was found
+   * @return the files found
    */
-  boolean filesFound() {
+  List<String> findFiles() {
     if (directoryFound() && filesSpecified()) {
       FileSet fileSet = Util.createFileSet(new File(getDirectory()),
           getFiles(), getIgnoredFiles());
       fileSet.setDefaultexcludes(false);
-      return fileSet.size() > 0;
+      String[] found = fileSet.getDirectoryScanner().getIncludedFiles();
+      return Collections.unmodifiableList(Arrays.asList(found));
     }
-    return false;
+    return Collections.emptyList();
   }
 
   /**
@@ -255,7 +259,7 @@ public final class FilesFoundTriggerConfig implements
       if (!config.directoryFound()) {
         return FormValidation.warning(Messages.DirectoryNotFound());
       }
-      if (!config.filesFound()) {
+      if (config.findFiles().isEmpty()) {
         return FormValidation.ok(Messages.FilesNotFound());
       }
       return FormValidation.ok(Messages.FilesFound());

@@ -36,6 +36,8 @@ import hudson.util.FormValidation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +47,6 @@ import org.junit.Test;
  * 
  * @author Steven G. Brown
  */
-@SuppressWarnings("boxing")
 public class FilesFoundTriggerConfigTest {
 
   /**
@@ -104,28 +105,37 @@ public class FilesFoundTriggerConfigTest {
   /**
    */
   @Test
-  public void filesFoundDirectoryNotSpecified() {
+  public void findFilesDirectoryNotSpecified() {
     FilesFoundTriggerConfig config = config("", FILES, IGNORED_FILES);
-    assertThat(config.filesFound(), is(false));
+    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
   /**
    */
   @Test
-  public void filesFoundDirectoryNotFound() {
+  public void findFilesDirectoryNotFound() {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
     FilesFoundTriggerConfig config = config(nonExistentDirectory
         .getAbsolutePath(), FILES, IGNORED_FILES);
-    assertThat(config.filesFound(), is(false));
+    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
   /**
    */
   @Test
-  public void filesFoundFilesNotSpecified() {
+  public void findFilesFilesNotSpecified() {
     FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
         "", IGNORED_FILES);
-    assertThat(config.filesFound(), is(false));
+    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
+  }
+
+  /**
+   */
+  @Test
+  public void findFilesNoFiles() {
+    FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
+        FILES, IGNORED_FILES);
+    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
   /**
@@ -133,20 +143,11 @@ public class FilesFoundTriggerConfigTest {
    *           If an I/O error occurred
    */
   @Test
-  public void filesFoundSuccess() throws IOException {
+  public void findFilesOneFile() throws IOException {
     folder.newFile("test");
     FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
         FILES, IGNORED_FILES);
-    assertThat(config.filesFound(), is(true));
-  }
-
-  /**
-   */
-  @Test
-  public void filesFoundNoFiles() {
-    FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
-        FILES, IGNORED_FILES);
-    assertThat(config.filesFound(), is(false));
+    assertThat(config.findFiles(), is(Collections.singletonList("test")));
   }
 
   /**
@@ -154,11 +155,24 @@ public class FilesFoundTriggerConfigTest {
    *           If an I/O error occurred
    */
   @Test
-  public void filesFoundNoUnignoredFiles() throws IOException {
+  public void findFilesTwoFiles() throws IOException {
+    folder.newFile("test");
+    folder.newFile("test2");
+    FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
+        FILES, IGNORED_FILES);
+    assertThat(config.findFiles(), is(Arrays.asList("test", "test2")));
+  }
+
+  /**
+   * @throws IOException
+   *           If an I/O error occurred
+   */
+  @Test
+  public void findFilesNoUnignoredFiles() throws IOException {
     folder.newFile("test");
     FilesFoundTriggerConfig config = config(folder.getRoot().getAbsolutePath(),
         FILES, "**");
-    assertThat(config.filesFound(), is(false));
+    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
   /**

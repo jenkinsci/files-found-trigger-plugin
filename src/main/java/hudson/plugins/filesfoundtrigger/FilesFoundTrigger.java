@@ -140,7 +140,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   @Override
   public void run() {
     for (FilesFoundTriggerConfig config : getConfigs()) {
-      if (config.filesFound()) {
+      if (!config.findFiles().isEmpty()) {
         job.scheduleBuild(0, new FilesFoundTriggerCause(config));
         return;
       }
