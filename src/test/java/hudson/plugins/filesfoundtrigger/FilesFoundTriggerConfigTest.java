@@ -41,6 +41,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import hudson.Util;
 import hudson.model.Hudson;
 import hudson.model.Saveable;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.util.DescribableList;
@@ -269,9 +270,50 @@ public class FilesFoundTriggerConfigTest {
   /**
    */
   @Test
+  public void doTestConfigurationDirectoryNotFoundWithProperty() {
+    defineGlobalProperty("property", "nonexistent");
+    File nonExistentDirectory = new File(folder.getRoot(), "$property");
+    assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
+  }
+
+  /**
+   */
+  @Test
+  public void doTestConfigurationDirectoryNotFoundWithUnrecognisedProperty() {
+    File nonExistentDirectory = new File(folder.getRoot(), "$nonexistent");
+    assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
+  }
+
+  /**
+   */
+  @Test
+  public void doTestConfigurationDirectoryNotFoundWithEmptyProperty() {
+    defineGlobalProperty("property", "");
+    File nonExistentDirectory = new File(folder.getRoot(), "$property");
+    assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
+  }
+
+  /**
+   */
+  @Test
   public void doTestConfigurationNoFilesFound() {
     assertThat(validate(folder.getRoot().getAbsolutePath(), FILES,
         IGNORED_FILES), is(validation(OK, Messages.NoFilesFound())));
+  }
+
+  /**
+   * @throws IOException
+   *           If an I/O error occurred
+   */
+  @Test
+  public void doTestConfigurationNoFilesFoundWithProperty() throws IOException {
+    folder.newFile("test");
+    defineGlobalProperty("property", "test");
+    assertThat(validate(folder.getRoot().getAbsolutePath(), "$property",
+        IGNORED_FILES), is(validation(OK, Messages.SingleFileFound("test"))));
   }
 
   /**
@@ -296,6 +338,30 @@ public class FilesFoundTriggerConfigTest {
     folder.newFile("test2");
     assertThat(validate(folder.getRoot().getAbsolutePath(), FILES,
         IGNORED_FILES), is(validation(OK, Messages.MultipleFilesFound(2))));
+  }
+
+  /**
+   * @throws IOException
+   *           If an I/O error occurred
+   */
+  @Test
+  public void doTestConfigurationWithProperty() throws IOException {
+    folder.newFile("test");
+    defineGlobalProperty("property", "test");
+    assertThat(validate(folder.getRoot().getAbsolutePath(), "$property",
+        IGNORED_FILES), is(validation(OK, Messages.SingleFileFound("test"))));
+  }
+
+  private void defineGlobalProperty(String name, String value) {
+    EnvironmentVariablesNodeProperty.Entry entry = new EnvironmentVariablesNodeProperty.Entry(
+        name, value);
+    EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(
+        entry);
+    try {
+      globalNodeProperties.add(property);
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   private static Validation validate(String directory, String files,

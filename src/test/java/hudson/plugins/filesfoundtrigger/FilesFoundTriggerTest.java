@@ -48,6 +48,7 @@ import hudson.model.BuildableItem;
 import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.model.Saveable;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.util.DescribableList;
@@ -168,6 +169,26 @@ public class FilesFoundTriggerTest {
     trigger.start(job, true);
     trigger.run();
     verify(job, times(1)).scheduleBuild(0, new FilesFoundTriggerCause(config));
+  }
+
+  /**
+   * @throws IOException
+   *           If an I/O error occurred
+   */
+  @Test
+  public void runAndScheduleBuildWithProperties() throws IOException {
+    FilesFoundTriggerConfig expandedConfig = foundConfig();
+    defineGlobalProperty("directory", expandedConfig.getDirectory());
+    defineGlobalProperty("files", expandedConfig.getFiles());
+    defineGlobalProperty("ignoredFiles", expandedConfig.getIgnoredFiles());
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig("$directory",
+        "$files", "$ignoredFiles");
+    FilesFoundTrigger trigger = trigger(SPEC, config);
+    BuildableItem job = mock(BuildableItem.class);
+    trigger.start(job, true);
+    trigger.run();
+    verify(job, times(1)).scheduleBuild(0,
+        new FilesFoundTriggerCause(expandedConfig));
   }
 
   /**
@@ -322,7 +343,7 @@ public class FilesFoundTriggerTest {
   private FilesFoundTriggerConfig foundConfig() throws IOException {
     folder.newFile("test");
     return new FilesFoundTriggerConfig(folder.getRoot().getAbsolutePath(),
-        "**", "");
+        FILES, IGNORED_FILES);
   }
 
   /**
@@ -348,6 +369,18 @@ public class FilesFoundTriggerTest {
       field.setAccessible(true);
       return field.get(trigger);
     } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  private void defineGlobalProperty(String name, String value) {
+    EnvironmentVariablesNodeProperty.Entry entry = new EnvironmentVariablesNodeProperty.Entry(
+        name, value);
+    EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(
+        entry);
+    try {
+      globalNodeProperties.add(property);
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
