@@ -43,9 +43,9 @@ public final class FilesFoundEnvironmentContributor extends
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public void buildEnvironmentFor(Run r, EnvVars envs, TaskListener listener) {
+  public void buildEnvironmentFor(@SuppressWarnings("rawtypes") Run r,
+      EnvVars envs, TaskListener listener) {
     buildEnvironmentFor(r, envs);
   }
 

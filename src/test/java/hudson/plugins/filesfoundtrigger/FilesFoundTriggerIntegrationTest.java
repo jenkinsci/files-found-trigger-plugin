@@ -34,7 +34,8 @@ import hudson.model.Descriptor;
 import hudson.model.FreeStyleProject;
 import hudson.model.Hudson;
 
-import org.jvnet.hudson.test.HudsonTestCase;
+import org.junit.Rule;
+import org.jvnet.hudson.test.JenkinsRule;
 
 /**
  * Integration test for the Files Found Trigger plugin. Each of the test methods
@@ -42,15 +43,17 @@ import org.jvnet.hudson.test.HudsonTestCase;
  * 
  * @author Steven G. Brown
  */
-public class FilesFoundTriggerIntegrationTest extends HudsonTestCase {
+public class FilesFoundTriggerIntegrationTest {
 
   /**
    */
-  @SuppressWarnings("deprecation")
-  @Override
+  @Rule
+  public JenkinsRule j = new JenkinsRule();
+
+  /**
+   */
+  @SuppressWarnings({ "deprecation", "rawtypes" })
   public void setUp() throws Exception {
-    super.setUp();
-    @SuppressWarnings("unchecked")
     ExtensionList<Descriptor> descriptors = Hudson.getInstance()
         .getExtensionList(Descriptor.class);
     descriptors.add(new FilesFoundTrigger.DescriptorImpl());
@@ -69,7 +72,7 @@ public class FilesFoundTriggerIntegrationTest extends HudsonTestCase {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testGetConfigInstanceDescriptor() {
     assertThat(config().getDescriptor(),
-        isA((Class)FilesFoundTriggerConfig.DescriptorImpl.class));
+        isA((Class) FilesFoundTriggerConfig.DescriptorImpl.class));
   }
 
   /**
@@ -81,12 +84,12 @@ public class FilesFoundTriggerIntegrationTest extends HudsonTestCase {
    *           on error
    */
   public void testSave() throws Exception {
-    FreeStyleProject project = createFreeStyleProject();
+    FreeStyleProject project = j.createFreeStyleProject();
     FilesFoundTrigger before = trigger(SPEC, config());
     project.addTrigger(before);
 
-    submit(createWebClient().getPage(project, "configure").getFormByName(
-        "config"));
+    j.submit(j.createWebClient().getPage(project, "configure")
+        .getFormByName("config"));
 
     FilesFoundTrigger after = project.getTrigger(FilesFoundTrigger.class);
 

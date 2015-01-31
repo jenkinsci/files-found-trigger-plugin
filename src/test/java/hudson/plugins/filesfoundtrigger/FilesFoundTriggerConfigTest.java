@@ -358,11 +358,7 @@ public class FilesFoundTriggerConfigTest {
         name, value);
     EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(
         entry);
-    try {
-      globalNodeProperties.add(property);
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
+    globalNodeProperties.add(property);
   }
 
   private static Validation validate(String directory, String files,

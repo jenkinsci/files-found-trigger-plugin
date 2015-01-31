@@ -38,15 +38,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import hudson.model.BuildableItem;
 import hudson.model.Item;
 import hudson.model.Saveable;
+import hudson.model.Cause;
 import hudson.model.Hudson;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
@@ -107,6 +110,8 @@ public class FilesFoundTriggerTest {
 
   private DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties;
 
+  private BuildableItem job;
+
   /**
    */
   @Before
@@ -117,6 +122,10 @@ public class FilesFoundTriggerTest {
     when(hudson.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
     mockStatic(Hudson.class);
     when(Hudson.getInstance()).thenReturn(hudson);
+
+    job = mock(BuildableItem.class);
+    when(job.getFullName()).thenReturn(
+        FilesFoundTriggerTest.class.getSimpleName());
   }
 
   /**
@@ -166,7 +175,6 @@ public class FilesFoundTriggerTest {
   public void runAndScheduleBuild() throws IOException {
     FilesFoundTriggerConfig config = foundConfig();
     FilesFoundTrigger trigger = trigger(SPEC, config);
-    BuildableItem job = mock(BuildableItem.class);
     trigger.start(job, true);
     trigger.run();
     verify(job, times(1)).scheduleBuild(0, new FilesFoundTriggerCause(config));
@@ -185,7 +193,6 @@ public class FilesFoundTriggerTest {
     FilesFoundTriggerConfig config = new FilesFoundTriggerConfig("$directory",
         "$files", "$ignoredFiles");
     FilesFoundTrigger trigger = trigger(SPEC, config);
-    BuildableItem job = mock(BuildableItem.class);
     trigger.start(job, true);
     trigger.run();
     verify(job, times(1)).scheduleBuild(0,
@@ -198,10 +205,9 @@ public class FilesFoundTriggerTest {
   public void runAndDontScheduleBuild() {
     FilesFoundTriggerConfig config = notFoundConfig();
     FilesFoundTrigger trigger = trigger(SPEC, config);
-    BuildableItem job = mock(BuildableItem.class);
     trigger.start(job, true);
     trigger.run();
-    verifyZeroInteractions(job);
+    verify(job, never()).scheduleBuild(anyInt(), any(Cause.class));
   }
 
   /**
@@ -209,10 +215,9 @@ public class FilesFoundTriggerTest {
   @Test
   public void runWithNoConfigs() {
     FilesFoundTrigger trigger = trigger(SPEC);
-    BuildableItem job = mock(BuildableItem.class);
     trigger.start(job, true);
     trigger.run();
-    verifyZeroInteractions(job);
+    verify(job, never()).scheduleBuild(anyInt(), any(Cause.class));
   }
 
   /**
@@ -322,9 +327,8 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void isApplicableBuildableItem() {
-    BuildableItem buildableItem = mock(BuildableItem.class);
-    assertThat(new FilesFoundTrigger.DescriptorImpl()
-        .isApplicable(buildableItem), is(true));
+    assertThat(new FilesFoundTrigger.DescriptorImpl().isApplicable(job),
+        is(true));
   }
 
   /**
@@ -379,10 +383,6 @@ public class FilesFoundTriggerTest {
         name, value);
     EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(
         entry);
-    try {
-      globalNodeProperties.add(property);
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
+    globalNodeProperties.add(property);
   }
 }
