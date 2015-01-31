@@ -27,6 +27,7 @@ import static hudson.plugins.filesfoundtrigger.Support.SPEC;
 import static hudson.plugins.filesfoundtrigger.Support.config;
 import static hudson.plugins.filesfoundtrigger.Support.trigger;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 import hudson.ExtensionList;
 import hudson.model.Descriptor;
@@ -60,14 +61,15 @@ public class FilesFoundTriggerIntegrationTest extends HudsonTestCase {
    */
   public void testGetConfigClassDescriptor() {
     assertThat(FilesFoundTriggerConfig.getClassDescriptor(),
-        is(FilesFoundTriggerConfig.DescriptorImpl.class));
+        isA(FilesFoundTriggerConfig.DescriptorImpl.class));
   }
 
   /**
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testGetConfigInstanceDescriptor() {
     assertThat(config().getDescriptor(),
-        is(FilesFoundTriggerConfig.DescriptorImpl.class));
+        isA((Class)FilesFoundTriggerConfig.DescriptorImpl.class));
   }
 
   /**

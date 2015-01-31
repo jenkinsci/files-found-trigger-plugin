@@ -33,11 +33,11 @@ import static hudson.plugins.filesfoundtrigger.Support.fromXml;
 import static hudson.plugins.filesfoundtrigger.Support.toXml;
 import static hudson.plugins.filesfoundtrigger.Support.trigger;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,12 +45,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import hudson.model.BuildableItem;
-import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.model.Saveable;
-import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.model.Hudson;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.util.DescribableList;
 
 import java.io.IOException;
@@ -60,6 +60,7 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -102,7 +103,7 @@ public class FilesFoundTriggerTest {
   /**
    */
   @Rule
-  public TemporaryFolderRule folder = new TemporaryFolderRule();
+  public TemporaryFolder folder = new TemporaryFolder();
 
   private DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties;
 

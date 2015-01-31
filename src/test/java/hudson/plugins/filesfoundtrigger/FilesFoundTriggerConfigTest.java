@@ -30,20 +30,20 @@ import static hudson.plugins.filesfoundtrigger.Support.config;
 import static hudson.util.FormValidation.Kind.ERROR;
 import static hudson.util.FormValidation.Kind.OK;
 import static hudson.util.FormValidation.Kind.WARNING;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import hudson.Util;
-import hudson.model.Hudson;
 import hudson.model.Saveable;
-import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.model.Hudson;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 
@@ -55,6 +55,7 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -73,7 +74,7 @@ public class FilesFoundTriggerConfigTest {
   /**
    */
   @Rule
-  public TemporaryFolderRule folder = new TemporaryFolderRule();
+  public TemporaryFolder folder = new TemporaryFolder();
 
   private DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties;
 
