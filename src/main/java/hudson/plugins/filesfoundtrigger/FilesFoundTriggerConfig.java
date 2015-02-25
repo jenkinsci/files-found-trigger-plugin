@@ -292,7 +292,8 @@ public final class FilesFoundTriggerConfig implements
 
       FilesFoundTriggerConfig expandedConfig = config.expand();
       if (!expandedConfig.directoryFound()) {
-        return FormValidation.warning(Messages.DirectoryNotFound());
+        String userName = System.getProperty("user.name");
+        return FormValidation.warning(Messages.DirectoryNotFound(userName));
       }
 
       List<String> found = expandedConfig.findFiles();

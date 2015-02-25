@@ -78,6 +78,8 @@ public class FilesFoundTriggerConfigTest {
 
   private DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties;
 
+  private String userName;
+
   /**
    */
   @Before
@@ -88,6 +90,8 @@ public class FilesFoundTriggerConfigTest {
     when(hudson.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
     mockStatic(Hudson.class);
     when(Hudson.getInstance()).thenReturn(hudson);
+    
+    userName = System.getProperty("user.name");
   }
 
   /**
@@ -265,7 +269,7 @@ public class FilesFoundTriggerConfigTest {
   public void doTestConfigurationDirectoryNotFound() {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
     assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
-        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
   /**
@@ -275,7 +279,7 @@ public class FilesFoundTriggerConfigTest {
     defineGlobalProperty("property", "nonexistent");
     File nonExistentDirectory = new File(folder.getRoot(), "$property");
     assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
-        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
   /**
@@ -284,7 +288,7 @@ public class FilesFoundTriggerConfigTest {
   public void doTestConfigurationDirectoryNotFoundWithUnrecognisedProperty() {
     File nonExistentDirectory = new File(folder.getRoot(), "$nonexistent");
     assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
-        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
   /**
@@ -294,7 +298,7 @@ public class FilesFoundTriggerConfigTest {
     defineGlobalProperty("property", "");
     File nonExistentDirectory = new File(folder.getRoot(), "$property");
     assertThat(validate(nonExistentDirectory.getAbsolutePath(), FILES,
-        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound())));
+        IGNORED_FILES), is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
   /**
