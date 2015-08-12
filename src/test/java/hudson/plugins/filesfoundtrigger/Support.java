@@ -43,6 +43,10 @@ class Support {
 
   /**
    */
+  static final String MASTER_NODE = "master";
+
+  /**
+   */
   static final String DIRECTORY = "C:/";
 
   /**
@@ -52,6 +56,10 @@ class Support {
   /**
    */
   static final String FILES = "**";
+
+  /**
+   */
+  static final String SLAVE_NODE = "slave";
 
   /**
    */
@@ -68,6 +76,8 @@ class Support {
   /**
    * Create a new cause with the given values.
    * 
+   * @param node
+   *          the node
    * @param directory
    *          the base directory
    * @param files
@@ -76,14 +86,17 @@ class Support {
    *          the pattern of ignored files
    * @return a new {@link FilesFoundTriggerCause}
    */
-  static FilesFoundTriggerCause cause(String directory, String files,
-      String ignoredFiles) {
-    return new FilesFoundTriggerCause(config(directory, files, ignoredFiles));
+  static FilesFoundTriggerCause cause(String node, String directory,
+      String files, String ignoredFiles) {
+    return new FilesFoundTriggerCause(config(node, directory, files,
+        ignoredFiles));
   }
 
   /**
    * Create a new configuration with the given values.
    * 
+   * @param node
+   *          the node
    * @param directory
    *          the base directory
    * @param files
@@ -92,18 +105,29 @@ class Support {
    *          the pattern of ignored files
    * @return a new {@link FilesFoundTriggerConfig}
    */
-  static FilesFoundTriggerConfig config(String directory, String files,
-      String ignoredFiles) {
-    return new FilesFoundTriggerConfig(directory, files, ignoredFiles);
+  static FilesFoundTriggerConfig config(String node, String directory,
+      String files, String ignoredFiles) {
+    return new FilesFoundTriggerConfig(node, directory, files, ignoredFiles);
   }
 
   /**
-   * Create a new configuration.
+   * Create a new configuration for finding files on the master.
    * 
    * @return a new {@link FilesFoundTriggerConfig}
    */
-  static FilesFoundTriggerConfig config() {
-    return new FilesFoundTriggerConfig(DIRECTORY, FILES, IGNORED_FILES);
+  static FilesFoundTriggerConfig masterConfig() {
+    return new FilesFoundTriggerConfig(MASTER_NODE, DIRECTORY, FILES,
+        IGNORED_FILES);
+  }
+
+  /**
+   * Create a new configuration for finding files on a slave.
+   * 
+   * @return a new {@link FilesFoundTriggerConfig}
+   */
+  static FilesFoundTriggerConfig slaveConfig() {
+    return new FilesFoundTriggerConfig(SLAVE_NODE, DIRECTORY, FILES,
+        IGNORED_FILES);
   }
 
   /**
@@ -112,7 +136,7 @@ class Support {
    * @return a new {@link FilesFoundTriggerConfig}
    */
   static FilesFoundTriggerConfig emptyConfig() {
-    return new FilesFoundTriggerConfig("", "", "");
+    return new FilesFoundTriggerConfig("", "", "", "");
   }
 
   /**

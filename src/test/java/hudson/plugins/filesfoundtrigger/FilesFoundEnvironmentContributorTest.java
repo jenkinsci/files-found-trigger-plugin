@@ -26,6 +26,7 @@ package hudson.plugins.filesfoundtrigger;
 import static hudson.plugins.filesfoundtrigger.Support.DIRECTORY;
 import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
+import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.cause;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -63,11 +64,13 @@ public class FilesFoundEnvironmentContributorTest {
   @Test
   public void filesFoundCause() {
     Map<String, String> expected = new HashMap<String, String>();
+    expected.put("filesfound_setting_node", MASTER_NODE);
     expected.put("filesfound_setting_directory", DIRECTORY);
     expected.put("filesfound_setting_files", FILES);
     expected.put("filesfound_setting_ignoredfiles", IGNORED_FILES);
 
-    FilesFoundTriggerCause cause = cause(DIRECTORY, FILES, IGNORED_FILES);
+    FilesFoundTriggerCause cause = cause(MASTER_NODE, DIRECTORY, FILES,
+        IGNORED_FILES);
     when(run.getCause(FilesFoundTriggerCause.class)).thenReturn(cause);
     assertThat(contributeEnvVars(), is(expected));
   }

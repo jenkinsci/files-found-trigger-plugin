@@ -55,6 +55,12 @@ import com.thoughtworks.xstream.mapper.Mapper;
 public final class FilesFoundTrigger extends Trigger<BuildableItem> {
 
   /**
+   * The slave node on which to look for files, or {@code null} if the master
+   * will be used.
+   */
+  private final String node;
+
+  /**
    * The base directory to use when locating files.
    */
   private final String directory;
@@ -95,10 +101,11 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
         fixNull(configs));
     FilesFoundTriggerConfig firstConfig;
     if (configsCopy.isEmpty()) {
-      firstConfig = new FilesFoundTriggerConfig("", "", "");
+      firstConfig = new FilesFoundTriggerConfig(null, "", "", "");
     } else {
       firstConfig = configsCopy.remove(0);
     }
+    this.node = firstConfig.getNode();
     this.directory = firstConfig.getDirectory();
     this.files = firstConfig.getFiles();
     this.ignoredFiles = firstConfig.getIgnoredFiles();
@@ -116,6 +123,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   @SuppressWarnings("unused")
   // called reflectively by XStream
   private FilesFoundTrigger() {
+    this.node = null;
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
@@ -130,7 +138,8 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public List<FilesFoundTriggerConfig> getConfigs() {
     ImmutableList.Builder<FilesFoundTriggerConfig> builder = ImmutableList
         .builder();
-    builder.add(new FilesFoundTriggerConfig(directory, files, ignoredFiles));
+    builder.add(new FilesFoundTriggerConfig(node, directory, files,
+        ignoredFiles));
     if (additionalConfigs != null) {
       builder.addAll(additionalConfigs);
     }
@@ -156,8 +165,8 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("spec", spec).add("configs",
-        getConfigs()).toString();
+    return Objects.toStringHelper(this).add("spec", spec)
+        .add("configs", getConfigs()).toString();
   }
 
   /**

@@ -25,9 +25,9 @@ package hudson.plugins.filesfoundtrigger;
 
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.model.TaskListener;
 import hudson.model.EnvironmentContributor;
 import hudson.model.Run;
-import hudson.model.TaskListener;
 
 /**
  * Contributes environment variables to builds that were caused by the
@@ -52,6 +52,7 @@ public final class FilesFoundEnvironmentContributor extends
   private void buildEnvironmentFor(Run<?, ?> run, EnvVars envVars) {
     FilesFoundTriggerCause cause = run.getCause(FilesFoundTriggerCause.class);
     if (cause != null) {
+      envVars.put(name("node"), cause.getNode());
       envVars.put(name("directory"), cause.getDirectory());
       envVars.put(name("files"), cause.getFiles());
       envVars.put(name("ignoredfiles"), cause.getIgnoredFiles());

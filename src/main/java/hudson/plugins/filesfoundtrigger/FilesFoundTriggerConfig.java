@@ -26,25 +26,24 @@ package hudson.plugins.filesfoundtrigger;
 import static hudson.Util.fixNull;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
-import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.slaves.NodeProperty;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.util.FormValidation;
 import hudson.util.RobustReflectionConverter;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.tools.ant.types.FileSet;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.mapper.Mapper;
@@ -67,6 +66,25 @@ public final class FilesFoundTriggerConfig implements
         FilesFoundTriggerConfig.class);
   }
 
+  private static final Logger LOGGER = Logger
+      .getLogger(FilesFoundTriggerConfig.class.getName());
+
+  private static String fixNode(String node) {
+    if (node != null) {
+      node = node.trim();
+      if (node.isEmpty() || node.equalsIgnoreCase("master")) {
+        node = null;
+      }
+    }
+    return node;
+  }
+
+  /**
+   * The slave node on which to look for files, or {@code null} if the master
+   * will be used.
+   */
+  private final String node;
+
   /**
    * The base directory to use when locating files.
    */
@@ -85,6 +103,8 @@ public final class FilesFoundTriggerConfig implements
   /**
    * Create a new {@link FilesFoundTriggerConfig}.
    * 
+   * @param node
+   *          the node on which to look for files (the master or a slave node)
    * @param directory
    *          the base directory to use when locating files
    * @param files
@@ -94,8 +114,9 @@ public final class FilesFoundTriggerConfig implements
    *          directory
    */
   @DataBoundConstructor
-  public FilesFoundTriggerConfig(String directory, String files,
+  public FilesFoundTriggerConfig(String node, String directory, String files,
       String ignoredFiles) {
+    this.node = fixNode(node);
     this.directory = fixNull(directory).trim();
     this.files = fixNull(files).trim();
     this.ignoredFiles = fixNull(ignoredFiles).trim();
@@ -109,6 +130,7 @@ public final class FilesFoundTriggerConfig implements
   @SuppressWarnings("unused")
   // called reflectively by XStream
   private FilesFoundTriggerConfig() {
+    this.node = null;
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
@@ -120,6 +142,16 @@ public final class FilesFoundTriggerConfig implements
   @Override
   public Descriptor<FilesFoundTriggerConfig> getDescriptor() {
     return getClassDescriptor();
+  }
+
+  /**
+   * Get the slave node on which to look for files, or {@code null} if the
+   * master will be used.
+   * 
+   * @return the node on which to look for files
+   */
+  public String getNode() {
+    return node;
   }
 
   /**
@@ -154,8 +186,9 @@ public final class FilesFoundTriggerConfig implements
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("directory", directory).add(
-        "files", files).add("ignoredFiles", ignoredFiles).toString();
+    return Objects.toStringHelper(this).add("node", node)
+        .add("directory", directory).add("files", files)
+        .add("ignoredFiles", ignoredFiles).toString();
   }
 
   /**
@@ -179,11 +212,13 @@ public final class FilesFoundTriggerConfig implements
     }
 
     // Expand each field
-    String expDirectory = vars.expand(getDirectory());
-    String expFiles = vars.expand(getFiles());
-    String expIgnoredFiles = vars.expand(getIgnoredFiles());
+    String expNode = node == null ? null : vars.expand(node);
+    String expDirectory = vars.expand(directory);
+    String expFiles = vars.expand(files);
+    String expIgnoredFiles = vars.expand(ignoredFiles);
 
-    return new FilesFoundTriggerConfig(expDirectory, expFiles, expIgnoredFiles);
+    return new FilesFoundTriggerConfig(expNode, expDirectory, expFiles,
+        expIgnoredFiles);
   }
 
   /**
@@ -192,42 +227,15 @@ public final class FilesFoundTriggerConfig implements
    * @return the files found
    */
   List<String> findFiles() {
-    if (directoryFound() && filesSpecified()) {
-      FileSet fileSet = Util.createFileSet(new File(getDirectory()),
-          getFiles(), getIgnoredFiles());
-      fileSet.setDefaultexcludes(false);
-      String[] found = fileSet.getDirectoryScanner().getIncludedFiles();
-      return ImmutableList.copyOf(found);
+    try {
+      return FileSearch.perform(this).files;
+    } catch (IOException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
     }
     return Collections.emptyList();
-  }
-
-  /**
-   * Determine whether the directory has been specified.
-   * 
-   * @return whether the directory has been specified
-   */
-  private boolean directorySpecified() {
-    return directory.length() != 0;
-  }
-
-  /**
-   * Determine whether the search directory exists.
-   * 
-   * @return {@code true} if the search directory exists, {@code false} if the
-   *         search directory does not exist or has not been configured
-   */
-  private boolean directoryFound() {
-    return directorySpecified() && new File(getDirectory()).isDirectory();
-  }
-
-  /**
-   * Determine whether the file pattern has been specified.
-   * 
-   * @return whether the file pattern has been specified
-   */
-  private boolean filesSpecified() {
-    return files.length() != 0;
   }
 
   /**
@@ -267,6 +275,8 @@ public final class FilesFoundTriggerConfig implements
     /**
      * Test the entered trigger configuration.
      * 
+     * @param node
+     *          the node on which to locate files (the master or a slave node)
      * @param directory
      *          the base directory to use when locating files
      * @param files
@@ -275,36 +285,19 @@ public final class FilesFoundTriggerConfig implements
      *          the pattern of files to ignore when searching under the base
      *          directory
      * @return the result
+     * @throws IOException
+     * @throws InterruptedException
      */
     public FormValidation doTestConfiguration(
+        @QueryParameter("node") final String node,
         @QueryParameter("directory") final String directory,
         @QueryParameter("files") final String files,
-        @QueryParameter("ignoredFiles") final String ignoredFiles) {
+        @QueryParameter("ignoredFiles") final String ignoredFiles)
+        throws IOException, InterruptedException {
 
-      FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(directory,
-          files, ignoredFiles);
-      if (!config.directorySpecified()) {
-        return FormValidation.error(Messages.DirectoryNotSpecified());
-      }
-      if (!config.filesSpecified()) {
-        return FormValidation.error(Messages.FilesNotSpecified());
-      }
-
-      FilesFoundTriggerConfig expandedConfig = config.expand();
-      if (!expandedConfig.directoryFound()) {
-        String userName = System.getProperty("user.name");
-        return FormValidation.warning(Messages.DirectoryNotFound(userName));
-      }
-
-      List<String> found = expandedConfig.findFiles();
-      if (found.isEmpty()) {
-        return FormValidation.ok(Messages.NoFilesFound());
-      }
-      if (found.size() == 1) {
-        return FormValidation.ok(Messages.SingleFileFound(found.get(0)));
-      }
-      return FormValidation.ok(Messages.MultipleFilesFound(Integer
-          .valueOf(found.size())));
+      FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(node,
+          directory, files, ignoredFiles);
+      return FileSearch.perform(config.expand()).formValidation;
     }
   }
 }

@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2011 Steven G. Brown
+Copyright (c) 2015 Steven G. Brown
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-  <j:invokeStatic var="descriptor"
-      className="hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig"
-      method="getClassDescriptor"/>
-  <f:entry title="${%Node}" field="node">
-    <f:textbox default="master" value="${it.node}"/>
-  </f:entry>
-  <f:entry title="${%Directory}" field="directory">
-    <f:textbox value="${it.directory}"/>
-  </f:entry>
-  <f:entry title="${%Files to find}" field="files">
-    <f:textbox default="**" value="${it.files}"/>
-  </f:entry>
-  <f:entry title="${%Files to ignore}" field="ignoredFiles">
-    <f:textbox value="${it.ignoredFiles}"/>
-  </f:entry>
-  <f:validateButton
-      title="${%Test}" progress="${%Testing...}"
-      method="testConfiguration" with="node,directory,files,ignoredFiles"/>
-</j:jelly>
+The master or slave node on which the search will be performed.
+<p>
+Environment variable during the build: filesfound_setting_node

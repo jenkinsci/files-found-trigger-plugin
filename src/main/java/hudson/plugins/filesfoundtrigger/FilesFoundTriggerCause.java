@@ -41,6 +41,12 @@ import com.thoughtworks.xstream.mapper.Mapper;
 public final class FilesFoundTriggerCause extends Cause {
 
   /**
+   * The slave node on which to look for files, or {@code null} if the master
+   * will be used.
+   */
+  private final String node;
+
+  /**
    * The base directory that was used when locating files.
    */
   private final String directory;
@@ -63,6 +69,7 @@ public final class FilesFoundTriggerCause extends Cause {
    *          the configuration that has caused a build to be scheduled
    */
   FilesFoundTriggerCause(FilesFoundTriggerConfig config) {
+    this.node = config.getNode();
     this.directory = config.getDirectory();
     this.files = config.getFiles();
     this.ignoredFiles = config.getIgnoredFiles();
@@ -76,9 +83,20 @@ public final class FilesFoundTriggerCause extends Cause {
   @SuppressWarnings("unused")
   // called reflectively by XStream
   private FilesFoundTriggerCause() {
+    this.node = null;
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
+  }
+
+  /**
+   * Get the node on which the files were found.
+   * 
+   * @return the node
+   */
+  @Exported(visibility = 3)
+  public String getNode() {
+    return node == null ? "master" : node;
   }
 
   /**
@@ -117,8 +135,9 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String getShortDescription() {
-    return ignoredFiles.length() == 0 ? Messages.Cause(directory, files)
-        : Messages.CauseWithIgnoredFiles(directory, files, ignoredFiles);
+    return ignoredFiles.length() == 0 ? Messages.Cause(getNode(), directory,
+        files) : Messages.CauseWithIgnoredFiles(getNode(), directory, files,
+        ignoredFiles);
   }
 
   /**
@@ -126,7 +145,7 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public int hashCode() {
-    return Objects.hashCode(directory, files, ignoredFiles);
+    return Objects.hashCode(node, directory, files, ignoredFiles);
   }
 
   /**
@@ -136,7 +155,8 @@ public final class FilesFoundTriggerCause extends Cause {
   public boolean equals(Object obj) {
     if (obj instanceof FilesFoundTriggerCause) {
       FilesFoundTriggerCause other = (FilesFoundTriggerCause) obj;
-      return directory.equals(other.directory) && files.equals(other.files)
+      return Objects.equal(node, other.node)
+          && directory.equals(other.directory) && files.equals(other.files)
           && ignoredFiles.equals(other.ignoredFiles);
     }
     return false;
@@ -147,8 +167,9 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("directory", directory).add(
-        "files", files).add("ignoredFiles", ignoredFiles).toString();
+    return Objects.toStringHelper(this).add("node", getNode())
+        .add("directory", directory).add("files", files)
+        .add("ignoredFiles", ignoredFiles).toString();
   }
 
   /**

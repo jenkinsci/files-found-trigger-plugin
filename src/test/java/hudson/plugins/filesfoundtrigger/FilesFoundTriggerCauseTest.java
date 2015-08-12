@@ -29,6 +29,8 @@ import static hudson.plugins.filesfoundtrigger.Support.ALTERNATE_IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.DIRECTORY;
 import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
+import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
+import static hudson.plugins.filesfoundtrigger.Support.SLAVE_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.cause;
 import static hudson.plugins.filesfoundtrigger.Support.fromXml;
 import static hudson.plugins.filesfoundtrigger.Support.toXml;
@@ -50,7 +52,16 @@ public class FilesFoundTriggerCauseTest {
 
   /**
    */
-  private static final String XML = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+  private static final String XML_MASTER = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+      + "  <directory>%s</directory>\n"
+      + "  <files>%s</files>\n"
+      + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
+
+  /**
+   */
+  private static final String XML_SLAVE = "<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
+      + "  <node>%s</node>\n"
       + "  <directory>%s</directory>\n"
       + "  <files>%s</files>\n"
       + "  <ignoredFiles>%s</ignoredFiles>\n"
@@ -59,125 +70,210 @@ public class FilesFoundTriggerCauseTest {
   /**
    */
   @Test
+  public void getNodeMaster() {
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).getNode(),
+        is(MASTER_NODE));
+  }
+
+  /**
+   */
+  @Test
+  public void getNodeSlave() {
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).getNode(),
+        is(SLAVE_NODE));
+  }
+
+  /**
+   */
+  @Test
   public void getDirectory() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).getDirectory(),
-        is(DIRECTORY));
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+        .getDirectory(), is(DIRECTORY));
   }
 
   /**
    */
   @Test
   public void getFiles() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).getFiles(), is(FILES));
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).getFiles(),
+        is(FILES));
   }
 
   /**
    */
   @Test
   public void getIgnoredFiles() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).getIgnoredFiles(),
-        is(IGNORED_FILES));
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+        .getIgnoredFiles(), is(IGNORED_FILES));
   }
 
   /**
    */
   @Test
   public void getIgnoredFilesNotSpecified() {
-    assertThat(cause(DIRECTORY, FILES, "").getIgnoredFiles(), is(""));
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "").getIgnoredFiles(),
+        is(""));
   }
 
   /**
    */
   @Test
-  public void getShortDescription() {
-    assertThat(cause(DIRECTORY, FILES, "").getShortDescription(), is(Messages
-        .Cause(DIRECTORY, FILES)));
+  public void getShortDescriptionMaster() {
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "").getShortDescription(),
+        is(Messages.Cause(MASTER_NODE, DIRECTORY, FILES)));
   }
 
   /**
    */
   @Test
-  public void getShortDescriptionWithIgnoredFiles() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).getShortDescription(),
-        is(Messages.CauseWithIgnoredFiles(DIRECTORY, FILES, IGNORED_FILES)));
+  public void getShortDescriptionSlave() {
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, "").getShortDescription(),
+        is(Messages.Cause(SLAVE_NODE, DIRECTORY, FILES)));
   }
 
   /**
    */
   @Test
-  public void hashCodeWithoutIgnoredFiles() {
-    assertThat(cause(DIRECTORY, FILES, "").hashCode(), is(cause(DIRECTORY,
-        FILES, "").hashCode()));
+  public void getShortDescriptionMasterWithIgnoredFiles() {
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+        .getShortDescription(), is(Messages.CauseWithIgnoredFiles(MASTER_NODE,
+        DIRECTORY, FILES, IGNORED_FILES)));
   }
 
   /**
    */
   @Test
-  public void hashCodeWithIgnoredFiles() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).hashCode(), is(cause(
-        DIRECTORY, FILES, IGNORED_FILES).hashCode()));
+  public void getShortDescriptionSlaveWithIgnoredFiles() {
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES)
+        .getShortDescription(), is(Messages.CauseWithIgnoredFiles(SLAVE_NODE,
+        DIRECTORY, FILES, IGNORED_FILES)));
+  }
+
+  /**
+   */
+  @Test
+  public void hashCodeMaster() {
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "").hashCode(),
+        is(cause(MASTER_NODE, DIRECTORY, FILES, "").hashCode()));
+  }
+
+  /**
+   */
+  @Test
+  public void hashCodeSlave() {
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, "").hashCode(),
+        is(cause(SLAVE_NODE, DIRECTORY, FILES, "").hashCode()));
+  }
+
+  /**
+   */
+  @Test
+  public void hashCodeMasterWithIgnoredFiles() {
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode(),
+        is(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode()));
+  }
+
+  /**
+   */
+  @Test
+  public void hashCodeSlaveWithIgnoredFiles() {
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode(),
+        is(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode()));
   }
 
   /**
    */
   @Test
   public void equalsNull() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES), not(equalTo(null)));
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES),
+        not(equalTo(null)));
   }
 
   /**
    */
   @Test
   public void equalsObjectOfDifferentClass() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).equals(new Object()),
-        is(false));
+    assertThat(
+        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+            .equals(new Object()), is(false));
+  }
+
+  /**
+   */
+  @Test
+  public void equalsNodeDiffers() {
+    assertThat(
+        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
+            cause(SLAVE_NODE, DIRECTORY, FILES, "")), is(false));
   }
 
   /**
    */
   @Test
   public void equalsDirectoryDiffers() {
-    assertThat(cause(DIRECTORY, FILES, "").equals(
-        cause(ALTERNATE_DIRECTORY, FILES, "")), is(false));
+    assertThat(
+        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
+            cause(MASTER_NODE, ALTERNATE_DIRECTORY, FILES, "")), is(false));
   }
 
   /**
    */
   @Test
   public void equalsFilesDiffers() {
-    assertThat(cause(DIRECTORY, FILES, "").equals(
-        cause(DIRECTORY, ALTERNATE_FILES, "")), is(false));
+    assertThat(
+        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
+            cause(MASTER_NODE, DIRECTORY, ALTERNATE_FILES, "")), is(false));
   }
 
   /**
    */
   @Test
   public void equalsIgnoredFilesDiffers() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).equals(
-        cause(DIRECTORY, FILES, ALTERNATE_IGNORED_FILES)), is(false));
+    assertThat(
+        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).equals(
+            cause(MASTER_NODE, DIRECTORY, FILES, ALTERNATE_IGNORED_FILES)),
+        is(false));
   }
 
   /**
    */
   @Test
   public void equalsObjectsAreEqual() {
-    assertThat(cause(DIRECTORY, FILES, "").equals(cause(DIRECTORY, FILES, "")),
-        is(true));
+    assertThat(
+        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
+            cause(MASTER_NODE, DIRECTORY, FILES, "")), is(true));
   }
 
   /**
    */
   @Test
   public void equalsObjectsAreEqualWithIgnoredFiles() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).equals(
-        cause(DIRECTORY, FILES, IGNORED_FILES)), is(true));
+    assertThat(
+        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).equals(
+            cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)), is(true));
+  }
+
+  /**
+   */
+  @Test
+  public void toStringContainsNodeMaster() {
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+        containsString(MASTER_NODE));
+  }
+
+  /**
+   */
+  @Test
+  public void toStringContainsNodeSlave() {
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+        containsString(SLAVE_NODE));
   }
 
   /**
    */
   @Test
   public void toStringContainsDirectory() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
         containsString(DIRECTORY));
   }
 
@@ -185,7 +281,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void toStringContainsFiles() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
         containsString(FILES));
   }
 
@@ -193,26 +289,46 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void toStringContainsIgnoredFiles() {
-    assertThat(cause(DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
         containsString(IGNORED_FILES));
   }
 
   /**
    */
   @Test
-  public void writeToXml() {
-    String xml = toXml(cause(DIRECTORY, FILES, IGNORED_FILES));
-    assertThat(xml, is(String.format(XML, DIRECTORY, FILES, IGNORED_FILES)));
+  public void writeToXmlMaster() {
+    String xml = toXml(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES));
+    assertThat(xml,
+        is(String.format(XML_MASTER, DIRECTORY, FILES, IGNORED_FILES)));
   }
 
   /**
    */
   @Test
-  public void readFromXml() {
-    FilesFoundTriggerCause cause = fromXml(String.format(XML, DIRECTORY, FILES,
-        IGNORED_FILES));
-    assertThat(String.valueOf(cause), is(String.valueOf(cause(DIRECTORY, FILES,
-        IGNORED_FILES))));
+  public void writeToXmlSlave() {
+    String xml = toXml(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES));
+    assertThat(xml, is(String.format(XML_SLAVE, SLAVE_NODE, DIRECTORY, FILES,
+        IGNORED_FILES)));
+  }
+
+  /**
+   */
+  @Test
+  public void readFromXmlMaster() {
+    FilesFoundTriggerCause cause = fromXml(String.format(XML_MASTER, DIRECTORY,
+        FILES, IGNORED_FILES));
+    assertThat(String.valueOf(cause),
+        is(String.valueOf(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES))));
+  }
+
+  /**
+   */
+  @Test
+  public void readFromXmlSlave() {
+    FilesFoundTriggerCause cause = fromXml(String.format(XML_SLAVE, SLAVE_NODE,
+        DIRECTORY, FILES, IGNORED_FILES));
+    assertThat(String.valueOf(cause),
+        is(String.valueOf(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES))));
   }
 
   /**
@@ -222,6 +338,6 @@ public class FilesFoundTriggerCauseTest {
     FilesFoundTriggerCause cause = fromXml(String
         .format("<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>"));
-    assertThat(String.valueOf(cause), is(String.valueOf(cause("", "", ""))));
+    assertThat(String.valueOf(cause), is(String.valueOf(cause("", "", "", ""))));
   }
 }

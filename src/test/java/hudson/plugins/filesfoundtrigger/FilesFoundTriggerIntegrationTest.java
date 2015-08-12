@@ -24,7 +24,7 @@
 package hudson.plugins.filesfoundtrigger;
 
 import static hudson.plugins.filesfoundtrigger.Support.SPEC;
-import static hudson.plugins.filesfoundtrigger.Support.config;
+import static hudson.plugins.filesfoundtrigger.Support.masterConfig;
 import static hudson.plugins.filesfoundtrigger.Support.trigger;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
@@ -71,7 +71,7 @@ public class FilesFoundTriggerIntegrationTest {
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testGetConfigInstanceDescriptor() {
-    assertThat(config().getDescriptor(),
+    assertThat(masterConfig().getDescriptor(),
         isA((Class) FilesFoundTriggerConfig.DescriptorImpl.class));
   }
 
@@ -85,7 +85,7 @@ public class FilesFoundTriggerIntegrationTest {
    */
   public void testSave() throws Exception {
     FreeStyleProject project = j.createFreeStyleProject();
-    FilesFoundTrigger before = trigger(SPEC, config());
+    FilesFoundTrigger before = trigger(SPEC, masterConfig());
     project.addTrigger(before);
 
     j.submit(j.createWebClient().getPage(project, "configure")
