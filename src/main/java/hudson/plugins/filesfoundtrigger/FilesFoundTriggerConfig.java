@@ -29,8 +29,10 @@ import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
+import hudson.model.Node;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.util.ComboBoxModel;
 import hudson.util.FormValidation;
 import hudson.util.RobustReflectionConverter;
 
@@ -39,6 +41,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -298,6 +302,21 @@ public final class FilesFoundTriggerConfig implements
       FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(node,
           directory, files, ignoredFiles);
       return FileSearch.perform(config.expand()).formValidation;
+    }
+
+    /**
+     * Get the items to display in the node combo box.
+     * 
+     * @return the available nodes
+     */
+    public ComboBoxModel doFillNodeItems() {
+      List<Node> nodes = Jenkins.getInstance().getNodes();
+      ComboBoxModel model = new ComboBoxModel(nodes.size() + 1);
+      model.add("master");
+      for (Node node : nodes) {
+        model.add(node.getNodeName());
+      }
+      return model;
     }
   }
 }

@@ -28,7 +28,7 @@ THE SOFTWARE.
       className="hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig"
       method="getClassDescriptor"/>
   <f:entry title="${%Node}" field="node">
-    <f:textbox default="master" value="${it.node}"/>
+    <f:combobox value="${it.node == null ? 'master' : it.node}"/>
   </f:entry>
   <f:entry title="${%Directory}" field="directory">
     <f:textbox value="${it.directory}"/>
