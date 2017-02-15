@@ -103,6 +103,11 @@ public final class FilesFoundTriggerConfig implements
    * The pattern of files to ignore when searching under the base directory.
    */
   private final String ignoredFiles;
+  
+  /**
+   * The build is triggered when the number of files found is greater than or equal to this number.
+   */
+  private final String triggerNumber;
 
   /**
    * Create a new {@link FilesFoundTriggerConfig}.
@@ -116,14 +121,18 @@ public final class FilesFoundTriggerConfig implements
    * @param ignoredFiles
    *          the pattern of files to ignore when searching under the base
    *          directory
+   * @param triggerNumber
+   *          the build is triggered when the number of files found is 
+   *          greater than or equal to this number.
    */
   @DataBoundConstructor
   public FilesFoundTriggerConfig(String node, String directory, String files,
-      String ignoredFiles) {
+      String ignoredFiles, String triggerNumber) {
     this.node = fixNode(node);
     this.directory = fixNull(directory).trim();
     this.files = fixNull(files).trim();
     this.ignoredFiles = fixNull(ignoredFiles).trim();
+	this.triggerNumber = fixNull(triggerNumber).trim();
   }
 
   /**
@@ -138,6 +147,7 @@ public final class FilesFoundTriggerConfig implements
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
+	this.triggerNumber = "";
   }
 
   /**
@@ -184,6 +194,15 @@ public final class FilesFoundTriggerConfig implements
   public String getIgnoredFiles() {
     return ignoredFiles;
   }
+  
+  /**
+   * Get the minimum number of found files to trigger the build.
+   * 
+   * @return the minimum number of files to trigger the build
+   */
+  public String getTriggerNumber() {
+	return triggerNumber;
+  }
 
   /**
    * {@inheritDoc}
@@ -192,7 +211,8 @@ public final class FilesFoundTriggerConfig implements
   public String toString() {
     return Objects.toStringHelper(this).add("node", node)
         .add("directory", directory).add("files", files)
-        .add("ignoredFiles", ignoredFiles).toString();
+        .add("ignoredFiles", ignoredFiles)
+		.add("triggerNumber", triggerNumber).toString();
   }
 
   /**
@@ -220,9 +240,10 @@ public final class FilesFoundTriggerConfig implements
     String expDirectory = vars.expand(directory);
     String expFiles = vars.expand(files);
     String expIgnoredFiles = vars.expand(ignoredFiles);
-
+	String expTriggerNumber = vars.expand(triggerNumber);
+	
     return new FilesFoundTriggerConfig(expNode, expDirectory, expFiles,
-        expIgnoredFiles);
+        expIgnoredFiles, expTriggerNumber);
   }
 
   /**
@@ -287,7 +308,9 @@ public final class FilesFoundTriggerConfig implements
      *          the pattern of files to locate under the base directory
      * @param ignoredFiles
      *          the pattern of files to ignore when searching under the base
-     *          directory
+	 *          directory
+	 * @param triggerNumber
+	 *          the minimum number of found files to trigger the build          
      * @return the result
      * @throws IOException
      * @throws InterruptedException
@@ -296,11 +319,12 @@ public final class FilesFoundTriggerConfig implements
         @QueryParameter("node") final String node,
         @QueryParameter("directory") final String directory,
         @QueryParameter("files") final String files,
-        @QueryParameter("ignoredFiles") final String ignoredFiles)
+        @QueryParameter("ignoredFiles") final String ignoredFiles,
+		@QueryParameter("triggerNumber") final String triggerNumber)
         throws IOException, InterruptedException {
 
       FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(node,
-          directory, files, ignoredFiles);
+          directory, files, ignoredFiles, triggerNumber);
       return FileSearch.perform(config.expand()).formValidation;
     }
 

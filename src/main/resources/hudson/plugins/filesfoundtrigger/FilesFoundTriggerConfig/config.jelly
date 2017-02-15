@@ -39,6 +39,9 @@ THE SOFTWARE.
   <f:entry title="${%Files to ignore}" field="ignoredFiles">
     <f:textbox value="${it.ignoredFiles}"/>
   </f:entry>
+  <f:entry title="${%Number of files found to trigger}" field="triggerNumber">
+    <f:textbox default="1" value="${it.triggerNumber}"/>
+  </f:entry>
   <f:validateButton
       title="${%Test}" progress="${%Testing...}"
       method="testConfiguration" with="node,directory,files,ignoredFiles"/>

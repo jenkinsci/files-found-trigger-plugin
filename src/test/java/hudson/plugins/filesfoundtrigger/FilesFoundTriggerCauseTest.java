@@ -31,6 +31,7 @@ import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.SLAVE_NODE;
+import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
 import static hudson.plugins.filesfoundtrigger.Support.cause;
 import static hudson.plugins.filesfoundtrigger.Support.fromXml;
 import static hudson.plugins.filesfoundtrigger.Support.toXml;
@@ -71,7 +72,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getNodeMaster() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).getNode(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getNode(),
         is(MASTER_NODE));
   }
 
@@ -79,7 +80,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getNodeSlave() {
-    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).getNode(),
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getNode(),
         is(SLAVE_NODE));
   }
 
@@ -87,7 +88,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getDirectory() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
         .getDirectory(), is(DIRECTORY));
   }
 
@@ -95,7 +96,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getFiles() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).getFiles(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getFiles(),
         is(FILES));
   }
 
@@ -103,7 +104,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getIgnoredFiles() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
         .getIgnoredFiles(), is(IGNORED_FILES));
   }
 
@@ -111,7 +112,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getIgnoredFilesNotSpecified() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "").getIgnoredFiles(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).getIgnoredFiles(),
         is(""));
   }
 
@@ -119,7 +120,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getShortDescriptionMaster() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "").getShortDescription(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).getShortDescription(),
         is(Messages.Cause(MASTER_NODE, DIRECTORY, FILES)));
   }
 
@@ -127,7 +128,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getShortDescriptionSlave() {
-    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, "").getShortDescription(),
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).getShortDescription(),
         is(Messages.Cause(SLAVE_NODE, DIRECTORY, FILES)));
   }
 
@@ -135,7 +136,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getShortDescriptionMasterWithIgnoredFiles() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
         .getShortDescription(), is(Messages.CauseWithIgnoredFiles(MASTER_NODE,
         DIRECTORY, FILES, IGNORED_FILES)));
   }
@@ -144,7 +145,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void getShortDescriptionSlaveWithIgnoredFiles() {
-    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES)
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
         .getShortDescription(), is(Messages.CauseWithIgnoredFiles(SLAVE_NODE,
         DIRECTORY, FILES, IGNORED_FILES)));
   }
@@ -153,39 +154,39 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void hashCodeMaster() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "").hashCode(),
-        is(cause(MASTER_NODE, DIRECTORY, FILES, "").hashCode()));
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).hashCode(),
+        is(cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).hashCode()));
   }
 
   /**
    */
   @Test
   public void hashCodeSlave() {
-    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, "").hashCode(),
-        is(cause(SLAVE_NODE, DIRECTORY, FILES, "").hashCode()));
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).hashCode(),
+        is(cause(SLAVE_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).hashCode()));
   }
 
   /**
    */
   @Test
   public void hashCodeMasterWithIgnoredFiles() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode(),
-        is(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode()));
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).hashCode(),
+        is(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).hashCode()));
   }
 
   /**
    */
   @Test
   public void hashCodeSlaveWithIgnoredFiles() {
-    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode(),
-        is(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).hashCode()));
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).hashCode(),
+        is(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).hashCode()));
   }
 
   /**
    */
   @Test
   public void equalsNull() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER),
         not(equalTo(null)));
   }
 
@@ -194,7 +195,7 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void equalsObjectOfDifferentClass() {
     assertThat(
-        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
             .equals(new Object()), is(false));
   }
 
@@ -203,8 +204,8 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void equalsNodeDiffers() {
     assertThat(
-        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
-            cause(SLAVE_NODE, DIRECTORY, FILES, "")), is(false));
+        cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).equals(
+            cause(SLAVE_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER)), is(false));
   }
 
   /**
@@ -212,8 +213,8 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void equalsDirectoryDiffers() {
     assertThat(
-        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
-            cause(MASTER_NODE, ALTERNATE_DIRECTORY, FILES, "")), is(false));
+        cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).equals(
+            cause(MASTER_NODE, ALTERNATE_DIRECTORY, FILES, "", TRIGGER_NUMBER)), is(false));
   }
 
   /**
@@ -221,8 +222,8 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void equalsFilesDiffers() {
     assertThat(
-        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
-            cause(MASTER_NODE, DIRECTORY, ALTERNATE_FILES, "")), is(false));
+        cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).equals(
+            cause(MASTER_NODE, DIRECTORY, ALTERNATE_FILES, "", TRIGGER_NUMBER)), is(false));
   }
 
   /**
@@ -230,8 +231,8 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void equalsIgnoredFilesDiffers() {
     assertThat(
-        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).equals(
-            cause(MASTER_NODE, DIRECTORY, FILES, ALTERNATE_IGNORED_FILES)),
+        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).equals(
+            cause(MASTER_NODE, DIRECTORY, FILES, ALTERNATE_IGNORED_FILES, TRIGGER_NUMBER)),
         is(false));
   }
 
@@ -240,8 +241,8 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void equalsObjectsAreEqual() {
     assertThat(
-        cause(MASTER_NODE, DIRECTORY, FILES, "").equals(
-            cause(MASTER_NODE, DIRECTORY, FILES, "")), is(true));
+        cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER).equals(
+            cause(MASTER_NODE, DIRECTORY, FILES, "", TRIGGER_NUMBER)), is(true));
   }
 
   /**
@@ -249,15 +250,15 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void equalsObjectsAreEqualWithIgnoredFiles() {
     assertThat(
-        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).equals(
-            cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)), is(true));
+        cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).equals(
+            cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)), is(true));
   }
 
   /**
    */
   @Test
   public void toStringContainsNodeMaster() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(MASTER_NODE));
   }
 
@@ -265,7 +266,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void toStringContainsNodeSlave() {
-    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(SLAVE_NODE));
   }
 
@@ -273,7 +274,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void toStringContainsDirectory() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(DIRECTORY));
   }
 
@@ -281,7 +282,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void toStringContainsFiles() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(FILES));
   }
 
@@ -289,7 +290,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void toStringContainsIgnoredFiles() {
-    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(IGNORED_FILES));
   }
 
@@ -297,7 +298,7 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void writeToXmlMaster() {
-    String xml = toXml(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES));
+    String xml = toXml(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(xml,
         is(String.format(XML_MASTER, DIRECTORY, FILES, IGNORED_FILES)));
   }
@@ -306,9 +307,9 @@ public class FilesFoundTriggerCauseTest {
    */
   @Test
   public void writeToXmlSlave() {
-    String xml = toXml(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES));
+    String xml = toXml(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(xml, is(String.format(XML_SLAVE, SLAVE_NODE, DIRECTORY, FILES,
-        IGNORED_FILES)));
+        IGNORED_FILES, TRIGGER_NUMBER)));
   }
 
   /**
@@ -318,7 +319,7 @@ public class FilesFoundTriggerCauseTest {
     FilesFoundTriggerCause cause = fromXml(String.format(XML_MASTER, DIRECTORY,
         FILES, IGNORED_FILES));
     assertThat(String.valueOf(cause),
-        is(String.valueOf(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES))));
+        is(String.valueOf(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER))));
   }
 
   /**
@@ -328,7 +329,7 @@ public class FilesFoundTriggerCauseTest {
     FilesFoundTriggerCause cause = fromXml(String.format(XML_SLAVE, SLAVE_NODE,
         DIRECTORY, FILES, IGNORED_FILES));
     assertThat(String.valueOf(cause),
-        is(String.valueOf(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES))));
+        is(String.valueOf(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER))));
   }
 
   /**
@@ -338,6 +339,6 @@ public class FilesFoundTriggerCauseTest {
     FilesFoundTriggerCause cause = fromXml(String
         .format("<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>"));
-    assertThat(String.valueOf(cause), is(String.valueOf(cause("", "", "", ""))));
+    assertThat(String.valueOf(cause), is(String.valueOf(cause("", "", "", "", TRIGGER_NUMBER))));
   }
 }

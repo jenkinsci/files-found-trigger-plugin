@@ -25,6 +25,8 @@ package hudson.plugins.filesfoundtrigger;
 
 import hudson.util.XStream2;
 
+import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,6 +70,10 @@ class Support {
   /**
    */
   static final String IGNORED_FILES = "ignored";
+  
+  /**
+   */
+  static final String TRIGGER_NUMBER = "1";
 
   /**
    */
@@ -84,12 +90,14 @@ class Support {
    *          the pattern of files
    * @param ignoredFiles
    *          the pattern of ignored files
+   * @param triggerNumber
+   *          the minimum number of files to trigger the build
    * @return a new {@link FilesFoundTriggerCause}
    */
   static FilesFoundTriggerCause cause(String node, String directory,
-      String files, String ignoredFiles) {
+      String files, String ignoredFiles, String triggerNumber) {
     return new FilesFoundTriggerCause(config(node, directory, files,
-        ignoredFiles));
+        ignoredFiles, triggerNumber));
   }
 
   /**
@@ -103,11 +111,13 @@ class Support {
    *          the pattern of files
    * @param ignoredFiles
    *          the pattern of ignored files
+   * @param triggerNumber
+   *           the minimum number of found files to trigger the build
    * @return a new {@link FilesFoundTriggerConfig}
    */
   static FilesFoundTriggerConfig config(String node, String directory,
-      String files, String ignoredFiles) {
-    return new FilesFoundTriggerConfig(node, directory, files, ignoredFiles);
+      String files, String ignoredFiles, String triggerNumber) {
+    return new FilesFoundTriggerConfig(node, directory, files, ignoredFiles, triggerNumber);
   }
 
   /**
@@ -117,7 +127,7 @@ class Support {
    */
   static FilesFoundTriggerConfig masterConfig() {
     return new FilesFoundTriggerConfig(MASTER_NODE, DIRECTORY, FILES,
-        IGNORED_FILES);
+        IGNORED_FILES, TRIGGER_NUMBER);
   }
 
   /**
@@ -127,7 +137,7 @@ class Support {
    */
   static FilesFoundTriggerConfig slaveConfig() {
     return new FilesFoundTriggerConfig(SLAVE_NODE, DIRECTORY, FILES,
-        IGNORED_FILES);
+        IGNORED_FILES, TRIGGER_NUMBER);
   }
 
   /**
@@ -136,7 +146,7 @@ class Support {
    * @return a new {@link FilesFoundTriggerConfig}
    */
   static FilesFoundTriggerConfig emptyConfig() {
-    return new FilesFoundTriggerConfig("", "", "", "");
+    return new FilesFoundTriggerConfig("", "", "", "", "");
   }
 
   /**
