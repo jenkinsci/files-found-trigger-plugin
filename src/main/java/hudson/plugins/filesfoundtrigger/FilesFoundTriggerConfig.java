@@ -147,7 +147,7 @@ public final class FilesFoundTriggerConfig implements
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
-	this.triggerNumber = "";
+	this.triggerNumber = "1";
   }
 
   /**

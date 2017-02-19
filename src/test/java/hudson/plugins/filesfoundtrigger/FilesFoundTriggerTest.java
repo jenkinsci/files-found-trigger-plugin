@@ -89,6 +89,7 @@ public class FilesFoundTriggerTest {
       + "  <directory>%s</directory>\n"
       + "  <files>%s</files>\n"
       + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "  <triggerNumber>%s</triggerNumber>\n"
       + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
 
   /**
@@ -99,6 +100,7 @@ public class FilesFoundTriggerTest {
       + "  <directory>%s</directory>\n"
       + "  <files>%s</files>\n"
       + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "  <triggerNumber>%s</triggerNumber>\n"
       + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
 
   /**
@@ -108,11 +110,13 @@ public class FilesFoundTriggerTest {
       + "  <directory>%s</directory>\n"
       + "  <files>%s</files>\n"
       + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "  <triggerNumber>%s</triggerNumber>\n"
       + "  <additionalConfigs>\n"
       + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
       + "      <directory>%s</directory>\n"
       + "      <files>%s</files>\n"
       + "      <ignoredFiles>%s</ignoredFiles>\n"
+      + "      <triggerNumber>%s</triggerNumber>\n"
       + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
       + "  </additionalConfigs>\n"
       + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
@@ -125,12 +129,14 @@ public class FilesFoundTriggerTest {
       + "  <directory>%s</directory>\n"
       + "  <files>%s</files>\n"
       + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "  <triggerNumber>%s</triggerNumber>\n"
       + "  <additionalConfigs>\n"
       + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
       + "      <node>%s</node>\n"
       + "      <directory>%s</directory>\n"
       + "      <files>%s</files>\n"
       + "      <ignoredFiles>%s</ignoredFiles>\n"
+      + "      <triggerNumber>%s</triggerNumber>\n"
       + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
       + "  </additionalConfigs>\n"
       + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
@@ -303,7 +309,7 @@ public class FilesFoundTriggerTest {
   public void writeToXmlSlaveWithAdditionalConfigs() {
     String xml = toXml(trigger(SPEC, slaveConfig(), slaveConfig()));
     assertThat(xml, is(String.format(XML_SLAVE_ADDITIONAL_CONFIGS, SPEC,
-        SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, SLAVE_NODE, DIRECTORY,
+        SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER, SLAVE_NODE, DIRECTORY,
         FILES, IGNORED_FILES, TRIGGER_NUMBER)));
   }
 
@@ -312,7 +318,7 @@ public class FilesFoundTriggerTest {
   @Test
   public void readFromXmlMaster() {
     FilesFoundTrigger trigger = fromXml(String.format(XML_MASTER, SPEC,
-        DIRECTORY, FILES, IGNORED_FILES));
+        DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(String.valueOf(trigger),
         is(String.valueOf(trigger(SPEC, masterConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
@@ -334,8 +340,8 @@ public class FilesFoundTriggerTest {
   @Test
   public void readFromXmlMasterWithAdditionalConfigs() {
     FilesFoundTrigger trigger = fromXml(String.format(
-        XML_MASTER_ADDITIONAL_CONFIGS, SPEC, DIRECTORY, FILES, IGNORED_FILES,
-        DIRECTORY, FILES, IGNORED_FILES));
+        XML_MASTER_ADDITIONAL_CONFIGS, SPEC, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER, 
+        DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(String.valueOf(trigger),
         is(String.valueOf(trigger(SPEC, masterConfig(), masterConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
@@ -347,7 +353,7 @@ public class FilesFoundTriggerTest {
   public void readFromXmlSlaveWithAdditionalConfigs() {
     FilesFoundTrigger trigger = fromXml(String.format(
         XML_SLAVE_ADDITIONAL_CONFIGS, SPEC, SLAVE_NODE, DIRECTORY, FILES,
-        IGNORED_FILES, SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES));
+        IGNORED_FILES, TRIGGER_NUMBER, SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(String.valueOf(trigger),
         is(String.valueOf(trigger(SPEC, slaveConfig(), slaveConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
@@ -362,7 +368,7 @@ public class FilesFoundTriggerTest {
             + "  <spec>%s</spec>\n"
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
     assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC,
-        new FilesFoundTriggerConfig("", "", "", "", "")))));
+        new FilesFoundTriggerConfig("", "", "", "", "1")))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 

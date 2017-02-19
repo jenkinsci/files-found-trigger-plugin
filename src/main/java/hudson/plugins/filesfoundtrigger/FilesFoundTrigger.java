@@ -106,7 +106,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
         fixNull(configs));
     FilesFoundTriggerConfig firstConfig;
     if (configsCopy.isEmpty()) {
-      firstConfig = new FilesFoundTriggerConfig(null, "", "", "", "");
+      firstConfig = new FilesFoundTriggerConfig(null, "", "", "", "1");
     } else {
       firstConfig = configsCopy.remove(0);
     }
@@ -133,7 +133,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
-	this.triggerNumber = "";
+	this.triggerNumber = "1";
     this.additionalConfigs = null;
   }
 

@@ -146,7 +146,7 @@ class Support {
    * @return a new {@link FilesFoundTriggerConfig}
    */
   static FilesFoundTriggerConfig emptyConfig() {
-    return new FilesFoundTriggerConfig("", "", "", "", "");
+    return new FilesFoundTriggerConfig("", "", "", "", "1");
   }
 
   /**

@@ -57,6 +57,7 @@ public class FilesFoundTriggerCauseTest {
       + "  <directory>%s</directory>\n"
       + "  <files>%s</files>\n"
       + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "  <triggerNumber>%s</triggerNumber>\n"
       + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
 
   /**
@@ -66,6 +67,7 @@ public class FilesFoundTriggerCauseTest {
       + "  <directory>%s</directory>\n"
       + "  <files>%s</files>\n"
       + "  <ignoredFiles>%s</ignoredFiles>\n"
+      + "  <triggerNumber>%s</triggerNumber>\n"
       + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>";
 
   /**
@@ -300,7 +302,7 @@ public class FilesFoundTriggerCauseTest {
   public void writeToXmlMaster() {
     String xml = toXml(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(xml,
-        is(String.format(XML_MASTER, DIRECTORY, FILES, IGNORED_FILES)));
+        is(String.format(XML_MASTER, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)));
   }
 
   /**
@@ -317,7 +319,7 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void readFromXmlMaster() {
     FilesFoundTriggerCause cause = fromXml(String.format(XML_MASTER, DIRECTORY,
-        FILES, IGNORED_FILES));
+        FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(String.valueOf(cause),
         is(String.valueOf(cause(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER))));
   }
@@ -327,7 +329,7 @@ public class FilesFoundTriggerCauseTest {
   @Test
   public void readFromXmlSlave() {
     FilesFoundTriggerCause cause = fromXml(String.format(XML_SLAVE, SLAVE_NODE,
-        DIRECTORY, FILES, IGNORED_FILES));
+        DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(String.valueOf(cause),
         is(String.valueOf(cause(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER))));
   }
@@ -339,6 +341,6 @@ public class FilesFoundTriggerCauseTest {
     FilesFoundTriggerCause cause = fromXml(String
         .format("<hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>\n"
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTriggerCause>"));
-    assertThat(String.valueOf(cause), is(String.valueOf(cause("", "", "", "", TRIGGER_NUMBER))));
+    assertThat(String.valueOf(cause), is(String.valueOf(cause("", "", "", "", ""))));
   }
 }
