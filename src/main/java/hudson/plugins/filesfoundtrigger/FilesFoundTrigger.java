@@ -74,6 +74,11 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    * The pattern of files to ignore when searching under the base directory.
    */
   private final String ignoredFiles;
+  
+  /**
+   * The build is triggered when the number of files found is greater than or equal to this number.
+   */
+  private final String triggerNumber;
 
   /**
    * List of additional configured file patterns.
@@ -101,7 +106,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
         fixNull(configs));
     FilesFoundTriggerConfig firstConfig;
     if (configsCopy.isEmpty()) {
-      firstConfig = new FilesFoundTriggerConfig(null, "", "", "");
+      firstConfig = new FilesFoundTriggerConfig(null, "", "", "", "1");
     } else {
       firstConfig = configsCopy.remove(0);
     }
@@ -109,6 +114,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
     this.directory = firstConfig.getDirectory();
     this.files = firstConfig.getFiles();
     this.ignoredFiles = firstConfig.getIgnoredFiles();
+	this.triggerNumber = firstConfig.getTriggerNumber();
     if (configsCopy.isEmpty()) {
       configsCopy = null;
     }
@@ -127,6 +133,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
+	this.triggerNumber = "1";
     this.additionalConfigs = null;
   }
 
@@ -139,7 +146,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
     ImmutableList.Builder<FilesFoundTriggerConfig> builder = ImmutableList
         .builder();
     builder.add(new FilesFoundTriggerConfig(node, directory, files,
-        ignoredFiles));
+        ignoredFiles, triggerNumber));
     if (additionalConfigs != null) {
       builder.addAll(additionalConfigs);
     }
@@ -153,7 +160,9 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public void run() {
     for (FilesFoundTriggerConfig config : getConfigs()) {
       FilesFoundTriggerConfig expandedConfig = config.expand();
-      if (!expandedConfig.findFiles().isEmpty()) {
+	  int numFilesFound = expandedConfig.findFiles().size();
+	  int triggerNumber = Integer.parseInt(expandedConfig.getTriggerNumber());
+      if (numFilesFound >= triggerNumber ) {
         job.scheduleBuild(0, new FilesFoundTriggerCause(expandedConfig));
         return;
       }

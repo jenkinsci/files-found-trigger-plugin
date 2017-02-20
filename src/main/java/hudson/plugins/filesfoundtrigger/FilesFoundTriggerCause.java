@@ -63,6 +63,11 @@ public final class FilesFoundTriggerCause extends Cause {
   private final String ignoredFiles;
 
   /**
+   * the minimum number of found files to trigger the build.
+   */
+  private final String triggerNumber;
+  
+  /**
    * Create a new {@link FilesFoundTriggerCause}.
    * 
    * @param config
@@ -73,6 +78,7 @@ public final class FilesFoundTriggerCause extends Cause {
     this.directory = config.getDirectory();
     this.files = config.getFiles();
     this.ignoredFiles = config.getIgnoredFiles();
+	this.triggerNumber = config.getTriggerNumber();
   }
 
   /**
@@ -87,6 +93,7 @@ public final class FilesFoundTriggerCause extends Cause {
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
+	this.triggerNumber = "";
   }
 
   /**
@@ -129,6 +136,16 @@ public final class FilesFoundTriggerCause extends Cause {
   public String getIgnoredFiles() {
     return ignoredFiles;
   }
+  
+  /**
+   * Get the minimum number of found files to trigger the build.
+   * 
+   * @return the minimum number of found files to trigger the build
+   */
+  @Exported(visibility = 3)
+  public String getTriggerNumber() {
+    return triggerNumber;
+  }
 
   /**
    * {@inheritDoc}
@@ -145,7 +162,7 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public int hashCode() {
-    return Objects.hashCode(node, directory, files, ignoredFiles);
+    return Objects.hashCode(node, directory, files, ignoredFiles, triggerNumber);
   }
 
   /**
@@ -157,7 +174,7 @@ public final class FilesFoundTriggerCause extends Cause {
       FilesFoundTriggerCause other = (FilesFoundTriggerCause) obj;
       return Objects.equal(node, other.node)
           && directory.equals(other.directory) && files.equals(other.files)
-          && ignoredFiles.equals(other.ignoredFiles);
+          && ignoredFiles.equals(other.ignoredFiles) && triggerNumber.equals(other.triggerNumber);
     }
     return false;
   }
@@ -169,7 +186,7 @@ public final class FilesFoundTriggerCause extends Cause {
   public String toString() {
     return Objects.toStringHelper(this).add("node", getNode())
         .add("directory", directory).add("files", files)
-        .add("ignoredFiles", ignoredFiles).toString();
+        .add("ignoredFiles", ignoredFiles).add("triggerNumber", triggerNumber).toString();
   }
 
   /**

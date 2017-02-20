@@ -28,6 +28,7 @@ import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.SLAVE_NODE;
+import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
 import static hudson.plugins.filesfoundtrigger.Support.config;
 import static hudson.util.FormValidation.Kind.ERROR;
 import static hudson.util.FormValidation.Kind.OK;
@@ -100,7 +101,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getNodeMaster() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).getNode(),
+    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getNode(),
         is(nullValue()));
   }
 
@@ -108,7 +109,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getNodeSlave() {
-    assertThat(config(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).getNode(),
+    assertThat(config(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getNode(),
         is(SLAVE_NODE));
   }
 
@@ -116,7 +117,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getDirectory() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
         .getDirectory(), is(DIRECTORY));
   }
 
@@ -125,7 +126,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void getDirectoryTrimmed() {
     assertThat(
-        config(MASTER_NODE, "  " + DIRECTORY + "  ", FILES, IGNORED_FILES)
+        config(MASTER_NODE, "  " + DIRECTORY + "  ", FILES, IGNORED_FILES, TRIGGER_NUMBER)
             .getDirectory(), is(DIRECTORY));
   }
 
@@ -133,7 +134,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).getFiles(),
+    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getFiles(),
         is(FILES));
   }
 
@@ -142,7 +143,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void getFilesTrimmed() {
     assertThat(
-        config(MASTER_NODE, DIRECTORY, "  " + FILES + "  ", IGNORED_FILES)
+        config(MASTER_NODE, DIRECTORY, "  " + FILES + "  ", IGNORED_FILES, TRIGGER_NUMBER)
             .getFiles(), is(FILES));
   }
 
@@ -150,7 +151,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void getIgnoredFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES)
+    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
         .getIgnoredFiles(), is(IGNORED_FILES));
   }
 
@@ -159,7 +160,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void getIgnoredFilesTrimmed() {
     assertThat(
-        config(MASTER_NODE, DIRECTORY, FILES, "  " + IGNORED_FILES + "  ")
+        config(MASTER_NODE, DIRECTORY, FILES, "  " + IGNORED_FILES + "  ", TRIGGER_NUMBER)
             .getIgnoredFiles(), is(IGNORED_FILES));
   }
 
@@ -168,7 +169,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void findFilesDirectoryNotSpecified() {
     FilesFoundTriggerConfig config = config(MASTER_NODE, "", FILES,
-        IGNORED_FILES);
+        IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
@@ -178,7 +179,7 @@ public class FilesFoundTriggerConfigTest {
   public void findFilesDirectoryNotFound() {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
     FilesFoundTriggerConfig config = config(MASTER_NODE,
-        nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES);
+        nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
@@ -187,7 +188,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void findFilesFilesNotSpecified() {
     FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), "", IGNORED_FILES);
+        .getAbsolutePath(), "", IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
@@ -196,7 +197,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void findFilesNoFiles() {
     FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, IGNORED_FILES);
+        .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
@@ -208,7 +209,7 @@ public class FilesFoundTriggerConfigTest {
   public void findFilesOneFile() throws IOException {
     folder.newFile("test");
     FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, IGNORED_FILES);
+        .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.singletonList("test")));
   }
 
@@ -221,7 +222,7 @@ public class FilesFoundTriggerConfigTest {
     folder.newFile("test");
     folder.newFile("test2");
     FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, IGNORED_FILES);
+        .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Arrays.asList("test", "test2")));
   }
 
@@ -233,7 +234,7 @@ public class FilesFoundTriggerConfigTest {
   public void findFilesNoUnignoredFiles() throws IOException {
     folder.newFile("test");
     FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, "**");
+        .getAbsolutePath(), FILES, "**", TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String> emptyList()));
   }
 
@@ -241,7 +242,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void toStringContainsNode() {
-    assertThat(config(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(config(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(SLAVE_NODE));
   }
 
@@ -249,7 +250,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void toStringContainsDirectory() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(DIRECTORY));
   }
 
@@ -257,7 +258,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void toStringContainsFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(FILES));
   }
 
@@ -265,7 +266,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void toStringContainsIgnoredFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES).toString(),
+    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
         containsString(IGNORED_FILES));
   }
 
@@ -281,7 +282,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void doTestConfigurationDirectoryNotSpecified() {
-    assertThat(validate("", FILES, IGNORED_FILES),
+    assertThat(validate("", FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(ERROR, Messages.DirectoryNotSpecified())));
   }
 
@@ -289,7 +290,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void doTestConfigurationFilesNotSpecified() {
-    assertThat(validate(DIRECTORY, "", IGNORED_FILES),
+    assertThat(validate(DIRECTORY, "", IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(ERROR, Messages.FilesNotSpecified())));
   }
 
@@ -299,7 +300,7 @@ public class FilesFoundTriggerConfigTest {
   public void doTestConfigurationDirectoryNotFound() {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
     assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES),
+        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
@@ -310,7 +311,7 @@ public class FilesFoundTriggerConfigTest {
     defineGlobalProperty("property", "nonexistent");
     File nonExistentDirectory = new File(folder.getRoot(), "$property");
     assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES),
+        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
@@ -320,7 +321,7 @@ public class FilesFoundTriggerConfigTest {
   public void doTestConfigurationDirectoryNotFoundWithUnrecognisedProperty() {
     File nonExistentDirectory = new File(folder.getRoot(), "$nonexistent");
     assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES),
+        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
@@ -331,7 +332,7 @@ public class FilesFoundTriggerConfigTest {
     defineGlobalProperty("property", "");
     File nonExistentDirectory = new File(folder.getRoot(), "$property");
     assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES),
+        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(WARNING, Messages.DirectoryNotFound(userName))));
   }
 
@@ -340,7 +341,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void doTestConfigurationNoFilesFound() {
     assertThat(
-        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES),
+        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.NoFilesFound())));
   }
 
@@ -353,7 +354,7 @@ public class FilesFoundTriggerConfigTest {
     folder.newFile("test");
     defineGlobalProperty("property", "test");
     assertThat(
-        validate(folder.getRoot().getAbsolutePath(), "$property", IGNORED_FILES),
+        validate(folder.getRoot().getAbsolutePath(), "$property", IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.SingleFileFound("test"))));
   }
 
@@ -365,7 +366,7 @@ public class FilesFoundTriggerConfigTest {
   public void doTestConfigurationOneFileFound() throws IOException {
     folder.newFile("test");
     assertThat(
-        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES),
+        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.SingleFileFound("test"))));
   }
 
@@ -379,7 +380,7 @@ public class FilesFoundTriggerConfigTest {
     folder.newFile("test");
     folder.newFile("test2");
     assertThat(
-        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES),
+        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.MultipleFilesFound(2))));
   }
 
@@ -392,7 +393,7 @@ public class FilesFoundTriggerConfigTest {
     folder.newFile("test");
     defineGlobalProperty("property", "test");
     assertThat(
-        validate(folder.getRoot().getAbsolutePath(), "$property", IGNORED_FILES),
+        validate(folder.getRoot().getAbsolutePath(), "$property", IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.SingleFileFound("test"))));
   }
 
@@ -405,11 +406,11 @@ public class FilesFoundTriggerConfigTest {
   }
 
   private static Validation validate(String directory, String files,
-      String ignoredFiles) {
+      String ignoredFiles, String triggerNumber) {
     FormValidation formValidation;
     try {
       formValidation = new FilesFoundTriggerConfig.DescriptorImpl()
-          .doTestConfiguration(MASTER_NODE, directory, files, ignoredFiles);
+          .doTestConfiguration(MASTER_NODE, directory, files, ignoredFiles, triggerNumber);
     } catch (IOException e) {
       throw new RuntimeException(e);
     } catch (InterruptedException e) {
