@@ -56,6 +56,7 @@ public final class FilesFoundEnvironmentContributor extends
       envVars.put(name("directory"), cause.getDirectory());
       envVars.put(name("files"), cause.getFiles());
       envVars.put(name("ignoredfiles"), cause.getIgnoredFiles());
+      envVars.put(name("triggernumber"), cause.getTriggerNumber());
     }
   }
 

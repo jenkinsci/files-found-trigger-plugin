@@ -69,6 +69,7 @@ public class FilesFoundEnvironmentContributorTest {
     expected.put("filesfound_setting_directory", DIRECTORY);
     expected.put("filesfound_setting_files", FILES);
     expected.put("filesfound_setting_ignoredfiles", IGNORED_FILES);
+    expected.put("filesfound_setting_triggernumber", TRIGGER_NUMBER);
 
     FilesFoundTriggerCause cause = cause(MASTER_NODE, DIRECTORY, FILES,
         IGNORED_FILES, TRIGGER_NUMBER);
