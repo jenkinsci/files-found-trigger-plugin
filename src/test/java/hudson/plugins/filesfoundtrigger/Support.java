@@ -25,8 +25,6 @@ package hudson.plugins.filesfoundtrigger;
 
 import hudson.util.XStream2;
 
-import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
-
 import java.util.Arrays;
 import java.util.List;
 
