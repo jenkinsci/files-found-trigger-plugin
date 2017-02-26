@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,8 +55,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.google.common.base.Objects;
 
 import hudson.Util;
 import hudson.model.Saveable;
@@ -436,15 +435,15 @@ public class FilesFoundTriggerConfigTest {
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(kind, escapedMessage);
+      return Objects.hash(kind, escapedMessage);
     }
 
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof Validation) {
         Validation other = (Validation) obj;
-        return Objects.equal(kind, other.kind)
-            && Objects.equal(escapedMessage, other.escapedMessage);
+        return Objects.equals(kind, other.kind)
+            && Objects.equals(escapedMessage, other.escapedMessage);
       }
       return super.equals(obj);
     }

@@ -24,25 +24,26 @@
 package hudson.plugins.filesfoundtrigger;
 
 import static hudson.Util.fixNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.kohsuke.stapler.DataBoundConstructor;
+
+import com.google.common.collect.ImmutableList;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import com.thoughtworks.xstream.mapper.Mapper;
+
+import antlr.ANTLRException;
 import hudson.Extension;
 import hudson.model.BuildableItem;
 import hudson.model.Item;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.RobustReflectionConverter;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import antlr.ANTLRException;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
-import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * Build trigger that schedules a build when certain files are found. These
@@ -174,8 +175,8 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("spec", spec)
-        .add("configs", getConfigs()).toString();
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("spec", spec)
+        .append("configs", getConfigs()).toString();
   }
 
   /**

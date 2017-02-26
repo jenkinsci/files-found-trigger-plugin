@@ -31,10 +31,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
-import com.google.common.base.Objects;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.mapper.Mapper;
@@ -190,10 +191,9 @@ public final class FilesFoundTriggerConfig extends
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("node", node)
-        .add("directory", directory).add("files", files)
-        .add("ignoredFiles", ignoredFiles)
-		.add("triggerNumber", triggerNumber).toString();
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("node", node)
+        .append("directory", directory).append("files", files).append("ignoredFiles", ignoredFiles)
+        .append("triggerNumber", triggerNumber).toString();
   }
 
   /**

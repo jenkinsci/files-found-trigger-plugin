@@ -23,15 +23,18 @@
  */
 package hudson.plugins.filesfoundtrigger;
 
-import hudson.model.Cause;
-import hudson.util.RobustReflectionConverter;
+import java.util.Objects;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.kohsuke.stapler.export.Exported;
 
-import com.google.common.base.Objects;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.mapper.Mapper;
+
+import hudson.model.Cause;
+import hudson.util.RobustReflectionConverter;
 
 /**
  * The cause of a build that was started by a {@link FilesFoundTrigger}.
@@ -162,7 +165,7 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public int hashCode() {
-    return Objects.hashCode(node, directory, files, ignoredFiles, triggerNumber);
+    return Objects.hash(node, directory, files, ignoredFiles, triggerNumber);
   }
 
   /**
@@ -172,7 +175,7 @@ public final class FilesFoundTriggerCause extends Cause {
   public boolean equals(Object obj) {
     if (obj instanceof FilesFoundTriggerCause) {
       FilesFoundTriggerCause other = (FilesFoundTriggerCause) obj;
-      return Objects.equal(node, other.node)
+      return Objects.equals(node, other.node)
           && directory.equals(other.directory) && files.equals(other.files)
           && ignoredFiles.equals(other.ignoredFiles) && triggerNumber.equals(other.triggerNumber);
     }
@@ -184,9 +187,9 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("node", getNode())
-        .add("directory", directory).add("files", files)
-        .add("ignoredFiles", ignoredFiles).add("triggerNumber", triggerNumber).toString();
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("node", getNode())
+        .append("directory", directory).append("files", files).append("ignoredFiles", ignoredFiles)
+        .append("triggerNumber", triggerNumber).toString();
   }
 
   /**
