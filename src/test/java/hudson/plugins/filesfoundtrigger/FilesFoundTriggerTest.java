@@ -28,8 +28,8 @@ import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.SLAVE_NODE;
-import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
 import static hudson.plugins.filesfoundtrigger.Support.SPEC;
+import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
 import static hudson.plugins.filesfoundtrigger.Support.emptyConfig;
 import static hudson.plugins.filesfoundtrigger.Support.fromXml;
 import static hudson.plugins.filesfoundtrigger.Support.masterConfig;
@@ -37,10 +37,10 @@ import static hudson.plugins.filesfoundtrigger.Support.slaveConfig;
 import static hudson.plugins.filesfoundtrigger.Support.toXml;
 import static hudson.plugins.filesfoundtrigger.Support.trigger;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -50,15 +50,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
-import hudson.model.BuildableItem;
-import hudson.model.Item;
-import hudson.model.Saveable;
-import hudson.model.Cause;
-import hudson.model.Hudson;
-import hudson.slaves.NodeProperty;
-import hudson.slaves.NodePropertyDescriptor;
-import hudson.slaves.EnvironmentVariablesNodeProperty;
-import hudson.util.DescribableList;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -72,13 +63,23 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import hudson.model.BuildableItem;
+import hudson.model.Cause;
+import hudson.model.Item;
+import hudson.model.Saveable;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.slaves.NodeProperty;
+import hudson.slaves.NodePropertyDescriptor;
+import hudson.util.DescribableList;
+import jenkins.model.Jenkins;
+
 /**
  * Unit test for the {@link FilesFoundTrigger} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Hudson.class)
+@PrepareForTest(Jenkins.class)
 @SuppressWarnings("boxing")
 public class FilesFoundTriggerTest {
 
@@ -154,12 +155,12 @@ public class FilesFoundTriggerTest {
    */
   @Before
   public void setUp() {
-    Hudson hudson = mock(Hudson.class);
+    Jenkins jenkins = mock(Jenkins.class);
     globalNodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(
         Saveable.NOOP);
-    when(hudson.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
-    mockStatic(Hudson.class);
-    when(Hudson.getInstance()).thenReturn(hudson);
+    when(jenkins.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
+    mockStatic(Jenkins.class);
+    when(Jenkins.getInstance()).thenReturn(jenkins);
 
     job = mock(BuildableItem.class);
     when(job.getFullName()).thenReturn(

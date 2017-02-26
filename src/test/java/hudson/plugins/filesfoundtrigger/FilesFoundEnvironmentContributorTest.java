@@ -29,13 +29,10 @@ import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
 import static hudson.plugins.filesfoundtrigger.Support.cause;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.EnvVars;
-import hudson.model.BuildListener;
-import hudson.model.Run;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +40,10 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import hudson.EnvVars;
+import hudson.model.BuildListener;
+import hudson.model.Run;
 
 /**
  * Unit test for the {@link FilesFoundEnvironmentContributor} class.

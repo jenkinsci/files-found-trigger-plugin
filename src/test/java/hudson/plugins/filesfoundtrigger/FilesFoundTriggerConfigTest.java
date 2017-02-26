@@ -33,22 +33,14 @@ import static hudson.plugins.filesfoundtrigger.Support.config;
 import static hudson.util.FormValidation.Kind.ERROR;
 import static hudson.util.FormValidation.Kind.OK;
 import static hudson.util.FormValidation.Kind.WARNING;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
-import hudson.Util;
-import hudson.model.Saveable;
-import hudson.model.Hudson;
-import hudson.slaves.NodeProperty;
-import hudson.slaves.NodePropertyDescriptor;
-import hudson.slaves.EnvironmentVariablesNodeProperty;
-import hudson.util.DescribableList;
-import hudson.util.FormValidation;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,13 +57,22 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.common.base.Objects;
 
+import hudson.Util;
+import hudson.model.Saveable;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.slaves.NodeProperty;
+import hudson.slaves.NodePropertyDescriptor;
+import hudson.util.DescribableList;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+
 /**
  * Unit test for the {@link FilesFoundTriggerConfig} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Hudson.class)
+@PrepareForTest(Jenkins.class)
 public class FilesFoundTriggerConfigTest {
 
   /**
@@ -87,12 +88,12 @@ public class FilesFoundTriggerConfigTest {
    */
   @Before
   public void setUp() {
-    Hudson hudson = mock(Hudson.class);
+    Jenkins jenkins = mock(Jenkins.class);
     globalNodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(
         Saveable.NOOP);
-    when(hudson.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
-    mockStatic(Hudson.class);
-    when(Hudson.getInstance()).thenReturn(hudson);
+    when(jenkins.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
+    mockStatic(Jenkins.class);
+    when(Jenkins.getInstance()).thenReturn(jenkins);
 
     userName = System.getProperty("user.name");
   }

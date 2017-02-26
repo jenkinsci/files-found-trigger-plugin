@@ -24,22 +24,26 @@
 
 package hudson.plugins.filesfoundtrigger;
 
-import hudson.FilePath;
-import hudson.Util;
-import hudson.model.Node;
-import hudson.remoting.VirtualChannel;
-import hudson.util.FormValidation;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import jenkins.model.Jenkins;
+import javax.annotation.CheckForNull;
 
 import org.apache.tools.ant.types.FileSet;
 
 import com.google.common.collect.ImmutableList;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.FilePath;
+import hudson.FilePath.FileCallable;
+import hudson.Util;
+import hudson.model.Node;
+import hudson.remoting.VirtualChannel;
+import hudson.util.FormValidation;
+import jenkins.MasterToSlaveFileCallable;
+import jenkins.model.Jenkins;
 
 /**
  * Class that is responsible for performing the file search.
@@ -67,6 +71,29 @@ class FileSearch {
   }
 
   /**
+   * {@link FileCallable} which scans for matching files on a slave.
+   */
+  private static class FindFilesOnSlaveFileCallable extends MasterToSlaveFileCallable<String[]> {
+
+    private static final long serialVersionUID = 1L;
+    
+    private final String files;
+    
+    private final String ignoredFiles;
+    
+    FindFilesOnSlaveFileCallable(FilesFoundTriggerConfig config) {
+      this.files = config.getFiles();
+      this.ignoredFiles = config.getIgnoredFiles();
+    }
+
+    @Override
+    public String[] invoke(File f, VirtualChannel channel)
+        throws IOException, InterruptedException {
+      return scan(f, files, ignoredFiles);
+    }
+  }
+
+  /**
    * Perform a file search with the given configuration.
    * 
    * @param config
@@ -86,15 +113,19 @@ class FileSearch {
       return new Result(FormValidation.error(Messages.FilesNotSpecified()));
     }
 
-    // Attempt to create a FilePath for the configured node.
-    FilePath filePath;
+    // Search for the files on the master or on a slave.
     String nodeName = config.getNode();
+    String[] found;
     if (nodeName == null) {
       // master
-      filePath = new FilePath(new File(config.getDirectory()));
+      found = scan(new File(config.getDirectory()), config.getFiles(), config.getIgnoredFiles());
     } else {
       // slave
-      Node slaveNode = Jenkins.getInstance().getNode(nodeName);
+      Node slaveNode = null;
+      Jenkins jenkins = Jenkins.getInstance();
+      if (jenkins != null) {
+        slaveNode = jenkins.getNode(nodeName);
+      }
       if (slaveNode == null) {
         return new Result(FormValidation.error(Messages.NodeNotFound(nodeName)));
       }
@@ -102,27 +133,9 @@ class FileSearch {
       if (channel == null) {
         return new Result(FormValidation.error(Messages.NodeOffline(nodeName)));
       }
-      filePath = new FilePath(channel, config.getDirectory());
+      FilePath filePath = new FilePath(channel, config.getDirectory());
+      found = filePath.act(new FindFilesOnSlaveFileCallable(config));
     }
-
-    // Execute a search using the FilePath.
-    final String files = config.getFiles();
-    final String ignoredFiles = config.getIgnoredFiles();
-    String[] found = filePath.act(new FilePath.FileCallable<String[]>() {
-
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public String[] invoke(File f, VirtualChannel channel)
-          throws IOException, InterruptedException {
-        if (!f.isDirectory()) {
-          return null;
-        }
-        FileSet fileSet = Util.createFileSet(f, files, ignoredFiles);
-        fileSet.setDefaultexcludes(false);
-        return fileSet.getDirectoryScanner().getIncludedFiles();
-      }
-    });
 
     // Check for missing directory.
     if (found == null) {
@@ -142,6 +155,18 @@ class FileSearch {
           .valueOf(found.length)));
     }
     return new Result(formValidation, found);
+  }
+
+  @CheckForNull
+  @SuppressFBWarnings(value="PZLA_PREFER_ZERO_LENGTH_ARRAYS")
+  private static String[] scan(File f, String files, String ignoredFiles) {
+    if (!f.isDirectory()) {
+      // Return null to indicate that the directory does not exist.
+      return null;
+    }
+    FileSet fileSet = Util.createFileSet(f, files, ignoredFiles);
+    fileSet.setDefaultexcludes(false);
+    return fileSet.getDirectoryScanner().getIncludedFiles();
   }
 
   private FileSearch() {

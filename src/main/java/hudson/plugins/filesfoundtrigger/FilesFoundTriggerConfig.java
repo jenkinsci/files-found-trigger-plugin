@@ -24,25 +24,12 @@
 package hudson.plugins.filesfoundtrigger;
 
 import static hudson.Util.fixNull;
-import hudson.EnvVars;
-import hudson.Extension;
-import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Node;
-import hudson.slaves.NodeProperty;
-import hudson.slaves.EnvironmentVariablesNodeProperty;
-import hudson.util.ComboBoxModel;
-import hudson.util.FormValidation;
-import hudson.util.RobustReflectionConverter;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -52,23 +39,25 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.mapper.Mapper;
 
+import hudson.EnvVars;
+import hudson.Extension;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import hudson.model.Node;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.slaves.NodeProperty;
+import hudson.util.ComboBoxModel;
+import hudson.util.FormValidation;
+import hudson.util.RobustReflectionConverter;
+import jenkins.model.Jenkins;
+
 /**
  * Pattern of files to locate within a single directory.
  * 
  * @author Steven G. Brown
  */
-public final class FilesFoundTriggerConfig implements
-    Describable<FilesFoundTriggerConfig> {
-
-  /**
-   * Get the descriptor of this class.
-   * 
-   * @return the {@link FilesFoundTriggerConfig} descriptor
-   */
-  public static DescriptorImpl getClassDescriptor() {
-    return (DescriptorImpl) Hudson.getInstance().getDescriptorOrDie(
-        FilesFoundTriggerConfig.class);
-  }
+public final class FilesFoundTriggerConfig extends
+    AbstractDescribableImpl<FilesFoundTriggerConfig> {
 
   private static final Logger LOGGER = Logger
       .getLogger(FilesFoundTriggerConfig.class.getName());
@@ -151,14 +140,6 @@ public final class FilesFoundTriggerConfig implements
   }
 
   /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Descriptor<FilesFoundTriggerConfig> getDescriptor() {
-    return getClassDescriptor();
-  }
-
-  /**
    * Get the slave node on which to look for files, or {@code null} if the
    * master will be used.
    * 
@@ -227,11 +208,13 @@ public final class FilesFoundTriggerConfig implements
     vars.overrideAll(System.getenv());
 
     // Global properties
-    for (NodeProperty<?> property : Hudson.getInstance()
-        .getGlobalNodeProperties()) {
-      if (property instanceof EnvironmentVariablesNodeProperty) {
-        vars.overrideAll(((EnvironmentVariablesNodeProperty) property)
-            .getEnvVars());
+    Jenkins jenkins = Jenkins.getInstance();
+    if (jenkins != null) {
+      for (NodeProperty<?> property : jenkins.getGlobalNodeProperties()) {
+        if (property instanceof EnvironmentVariablesNodeProperty) {
+          vars.overrideAll(((EnvironmentVariablesNodeProperty) property)
+              .getEnvVars());
+        }
       }
     }
 
@@ -334,12 +317,16 @@ public final class FilesFoundTriggerConfig implements
      * @return the available nodes
      */
     public ComboBoxModel doFillNodeItems() {
-      List<Node> nodes = Jenkins.getInstance().getNodes();
-      ComboBoxModel model = new ComboBoxModel(nodes.size() + 1);
+      ComboBoxModel model = new ComboBoxModel();
       model.add("master");
-      for (Node node : nodes) {
-        model.add(node.getNodeName());
+
+      Jenkins jenkins = Jenkins.getInstance();
+      if (jenkins != null) {
+        for (Node node : jenkins.getNodes()) {
+          model.add(node.getNodeName());
+        }
       }
+
       return model;
     }
   }
