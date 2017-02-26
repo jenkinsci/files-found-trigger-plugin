@@ -27,27 +27,23 @@ import static hudson.plugins.filesfoundtrigger.Support.DIRECTORY;
 import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
-import static hudson.plugins.filesfoundtrigger.Support.SLAVE_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
-import static hudson.plugins.filesfoundtrigger.Support.config;
 import static hudson.util.FormValidation.Kind.ERROR;
 import static hudson.util.FormValidation.Kind.OK;
 import static hudson.util.FormValidation.Kind.WARNING;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
+import org.hamcrest.CustomMatcher;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,6 +51,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.google.common.base.Throwables;
 
 import hudson.Util;
 import hudson.model.Saveable;
@@ -64,6 +62,7 @@ import hudson.slaves.NodePropertyDescriptor;
 import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 /**
  * Unit test for the {@link FilesFoundTriggerConfig} class.
@@ -99,78 +98,18 @@ public class FilesFoundTriggerConfigTest {
 
   /**
    */
-  @Test
-  public void getNodeMaster() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getNode(),
-        is(nullValue()));
-  }
-
-  /**
-   */
-  @Test
-  public void getNodeSlave() {
-    assertThat(config(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getNode(),
-        is(SLAVE_NODE));
-  }
-
-  /**
-   */
-  @Test
-  public void getDirectory() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
-        .getDirectory(), is(DIRECTORY));
-  }
-
-  /**
-   */
-  @Test
-  public void getDirectoryTrimmed() {
-    assertThat(
-        config(MASTER_NODE, "  " + DIRECTORY + "  ", FILES, IGNORED_FILES, TRIGGER_NUMBER)
-            .getDirectory(), is(DIRECTORY));
-  }
-
-  /**
-   */
-  @Test
-  public void getFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).getFiles(),
-        is(FILES));
-  }
-
-  /**
-   */
-  @Test
-  public void getFilesTrimmed() {
-    assertThat(
-        config(MASTER_NODE, DIRECTORY, "  " + FILES + "  ", IGNORED_FILES, TRIGGER_NUMBER)
-            .getFiles(), is(FILES));
-  }
-
-  /**
-   */
-  @Test
-  public void getIgnoredFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)
-        .getIgnoredFiles(), is(IGNORED_FILES));
-  }
-
-  /**
-   */
-  @Test
-  public void getIgnoredFilesTrimmed() {
-    assertThat(
-        config(MASTER_NODE, DIRECTORY, FILES, "  " + IGNORED_FILES + "  ", TRIGGER_NUMBER)
-            .getIgnoredFiles(), is(IGNORED_FILES));
+  @Test  
+  public void testEqualsAndHashCode() {
+    EqualsVerifier.forClass(FilesFoundTriggerConfig.class).verify();
   }
 
   /**
    */
   @Test
   public void findFilesDirectoryNotSpecified() {
-    FilesFoundTriggerConfig config = config(MASTER_NODE, "", FILES,
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE, "", FILES,
         IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
+    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
   }
 
   /**
@@ -178,104 +117,61 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void findFilesDirectoryNotFound() {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
-    FilesFoundTriggerConfig config = config(MASTER_NODE,
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
         nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
+    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
   }
 
   /**
    */
   @Test
   public void findFilesFilesNotSpecified() {
-    FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), "", IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
+        folder.getRoot().getAbsolutePath(), "", IGNORED_FILES, TRIGGER_NUMBER);
+    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
   }
 
   /**
    */
   @Test
   public void findFilesNoFiles() {
-    FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
+        folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
+    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
+   * @throws Exception
    */
   @Test
-  public void findFilesOneFile() throws IOException {
+  public void findFilesOneFile() throws Exception {
     folder.newFile("test");
-    FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
+        folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.singletonList("test")));
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
+   * @throws Exception
    */
   @Test
-  public void findFilesTwoFiles() throws IOException {
+  public void findFilesTwoFiles() throws Exception {
     folder.newFile("test");
     folder.newFile("test2");
-    FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
+        folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Arrays.asList("test", "test2")));
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
+   * @throws Exception
    */
   @Test
-  public void findFilesNoUnignoredFiles() throws IOException {
+  public void findFilesNoUnignoredFiles() throws Exception {
     folder.newFile("test");
-    FilesFoundTriggerConfig config = config(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, "**", TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String> emptyList()));
-  }
-
-  /**
-   */
-  @Test
-  public void toStringContainsNode() {
-    assertThat(config(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
-        containsString(SLAVE_NODE));
-  }
-
-  /**
-   */
-  @Test
-  public void toStringContainsDirectory() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
-        containsString(DIRECTORY));
-  }
-
-  /**
-   */
-  @Test
-  public void toStringContainsFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
-        containsString(FILES));
-  }
-
-  /**
-   */
-  @Test
-  public void toStringContainsIgnoredFiles() {
-    assertThat(config(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER).toString(),
-        containsString(IGNORED_FILES));
-  }
-
-  /**
-   */
-  @Test
-  public void getDisplayName() {
-    assertThat(new FilesFoundTriggerConfig.DescriptorImpl().getDisplayName(),
-        not(nullValue()));
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
+        folder.getRoot().getAbsolutePath(), FILES, "**", TRIGGER_NUMBER);
+    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
   }
 
   /**
@@ -346,11 +242,10 @@ public class FilesFoundTriggerConfigTest {
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
+   * @throws Exception
    */
   @Test
-  public void doTestConfigurationNoFilesFoundWithProperty() throws IOException {
+  public void doTestConfigurationNoFilesFoundWithProperty() throws Exception {
     folder.newFile("test");
     defineGlobalProperty("property", "test");
     assertThat(
@@ -359,11 +254,10 @@ public class FilesFoundTriggerConfigTest {
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
+   * @throws Exception
    */
   @Test
-  public void doTestConfigurationOneFileFound() throws IOException {
+  public void doTestConfigurationOneFileFound() throws Exception {
     folder.newFile("test");
     assertThat(
         validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
@@ -371,12 +265,11 @@ public class FilesFoundTriggerConfigTest {
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
+   * @throws Exception
    */
   @SuppressWarnings("boxing")
   @Test
-  public void doTestConfigurationTwoFilesFound() throws IOException {
+  public void doTestConfigurationTwoFilesFound() throws Exception {
     folder.newFile("test");
     folder.newFile("test2");
     assertThat(
@@ -385,11 +278,10 @@ public class FilesFoundTriggerConfigTest {
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
+   * @throws Exception
    */
   @Test
-  public void doTestConfigurationWithProperty() throws IOException {
+  public void doTestConfigurationWithProperty() throws Exception {
     folder.newFile("test");
     defineGlobalProperty("property", "test");
     assertThat(
@@ -405,52 +297,32 @@ public class FilesFoundTriggerConfigTest {
     globalNodeProperties.add(property);
   }
 
-  private static Validation validate(String directory, String files,
+  private static FormValidation validate(String directory, String files,
       String ignoredFiles, String triggerNumber) {
     FormValidation formValidation;
     try {
       formValidation = new FilesFoundTriggerConfig.DescriptorImpl()
           .doTestConfiguration(MASTER_NODE, directory, files, ignoredFiles, triggerNumber);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
     }
-    return new Validation(formValidation.kind, formValidation.getMessage());
+    return formValidation;
   }
 
-  private static Validation validation(FormValidation.Kind kind, String message) {
-    String escapedMessage = Util.escape(message);
-    return new Validation(kind, escapedMessage);
-  }
+  private static Matcher<FormValidation> validation(final FormValidation.Kind kind,
+      final String message) {
+    return new CustomMatcher<FormValidation>(
+        "FormValidation of kind " + kind + " with message " + message) {
 
-  private static class Validation {
-    private final FormValidation.Kind kind;
-    private final String escapedMessage;
-
-    Validation(FormValidation.Kind kind, String escapedMessage) {
-      this.kind = kind;
-      this.escapedMessage = escapedMessage;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(kind, escapedMessage);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof Validation) {
-        Validation other = (Validation) obj;
-        return Objects.equals(kind, other.kind)
-            && Objects.equals(escapedMessage, other.escapedMessage);
+      @Override
+      public boolean matches(Object item) {
+        if (item instanceof FormValidation) {
+          FormValidation formValidation = (FormValidation) item;
+          return formValidation.kind == kind
+              && Objects.equals(formValidation.getMessage(), Util.escape(message));
+        }
+        return false;
       }
-      return super.equals(obj);
-    }
-
-    @Override
-    public String toString() {
-      return kind.toString() + ": " + escapedMessage;
-    }
+    };
   }
 }

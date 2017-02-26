@@ -28,6 +28,7 @@ import static hudson.Util.fixNull;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -186,6 +187,28 @@ public final class FilesFoundTriggerConfig extends
 	return triggerNumber;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(node, directory, files, ignoredFiles, triggerNumber);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof FilesFoundTriggerConfig) {
+      FilesFoundTriggerConfig other = (FilesFoundTriggerConfig) obj;
+      return Objects.equals(node, other.node) && Objects.equals(directory, other.directory)
+          && Objects.equals(files, other.files) && Objects.equals(ignoredFiles, other.ignoredFiles)
+          && Objects.equals(triggerNumber, other.triggerNumber);
+    }
+    return false;
+  }
+  
   /**
    * {@inheritDoc}
    */

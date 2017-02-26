@@ -28,7 +28,6 @@ import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
-import static hudson.plugins.filesfoundtrigger.Support.cause;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,8 +37,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import hudson.EnvVars;
 import hudson.model.BuildListener;
@@ -50,16 +51,11 @@ import hudson.model.Run;
  * 
  * @author Steven G. Brown
  */
+@RunWith(MockitoJUnitRunner.class)
 public class FilesFoundEnvironmentContributorTest {
 
+  @Mock
   private Run<?, ?> run;
-
-  /**
-   */
-  @Before
-  public void setUp() {
-    run = mock(Run.class);
-  }
 
   /**
    */
@@ -72,8 +68,8 @@ public class FilesFoundEnvironmentContributorTest {
     expected.put("filesfound_setting_ignoredfiles", IGNORED_FILES);
     expected.put("filesfound_setting_triggernumber", TRIGGER_NUMBER);
 
-    FilesFoundTriggerCause cause = cause(MASTER_NODE, DIRECTORY, FILES,
-        IGNORED_FILES, TRIGGER_NUMBER);
+    FilesFoundTriggerCause cause = new FilesFoundTriggerCause(
+        new FilesFoundTriggerConfig(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     when(run.getCause(FilesFoundTriggerCause.class)).thenReturn(cause);
     assertThat(contributeEnvVars(), is(expected));
   }

@@ -175,9 +175,9 @@ public final class FilesFoundTriggerCause extends Cause {
   public boolean equals(Object obj) {
     if (obj instanceof FilesFoundTriggerCause) {
       FilesFoundTriggerCause other = (FilesFoundTriggerCause) obj;
-      return Objects.equals(node, other.node)
-          && directory.equals(other.directory) && files.equals(other.files)
-          && ignoredFiles.equals(other.ignoredFiles) && triggerNumber.equals(other.triggerNumber);
+      return Objects.equals(node, other.node) && Objects.equals(directory, other.directory)
+          && Objects.equals(files, other.files) && Objects.equals(ignoredFiles, other.ignoredFiles)
+          && Objects.equals(triggerNumber, other.triggerNumber);
     }
     return false;
   }

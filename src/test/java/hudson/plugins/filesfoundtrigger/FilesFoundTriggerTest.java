@@ -30,14 +30,7 @@ import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.SLAVE_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.SPEC;
 import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
-import static hudson.plugins.filesfoundtrigger.Support.emptyConfig;
-import static hudson.plugins.filesfoundtrigger.Support.fromXml;
-import static hudson.plugins.filesfoundtrigger.Support.masterConfig;
-import static hudson.plugins.filesfoundtrigger.Support.slaveConfig;
-import static hudson.plugins.filesfoundtrigger.Support.toXml;
-import static hudson.plugins.filesfoundtrigger.Support.trigger;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -51,9 +44,9 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -63,14 +56,17 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.google.common.base.Throwables;
+
+import antlr.ANTLRException;
 import hudson.model.BuildableItem;
 import hudson.model.Cause;
-import hudson.model.Item;
 import hudson.model.Saveable;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.util.DescribableList;
+import hudson.util.XStream2;
 import jenkins.model.Jenkins;
 
 /**
@@ -170,49 +166,29 @@ public class FilesFoundTriggerTest {
   /**
    */
   @Test
-  public void getSpec() {
-    assertThat(trigger(SPEC).getSpec(), is(SPEC));
-  }
-
-  /**
-   */
-  @Test
-  public void getConfigsNull() {
-    assertThat(String.valueOf(trigger(SPEC, (FilesFoundTriggerConfig[]) null)
-        .getConfigs()), is(singletonList(emptyConfig()).toString()));
-  }
-
-  /**
-   */
-  @Test
   public void getConfigsEmpty() {
-    assertThat(String.valueOf(trigger(SPEC).getConfigs()),
-        is(singletonList(emptyConfig()).toString()));
+    assertThat(trigger(SPEC).getConfigs(), is(singletonList(emptyConfig())));
   }
 
   /**
    */
   @Test
   public void getConfigsOne() {
-    assertThat(String.valueOf(trigger(SPEC, masterConfig()).getConfigs()),
-        is(Arrays.asList(masterConfig()).toString()));
+    assertThat(trigger(SPEC, masterConfig()).getConfigs(), is(Arrays.asList(masterConfig())));
   }
 
   /**
    */
   @Test
   public void getConfigsTwo() {
-    assertThat(String.valueOf(trigger(SPEC, masterConfig(), masterConfig())
-        .getConfigs()), is(Arrays.asList(masterConfig(), masterConfig())
-        .toString()));
+    assertThat(trigger(SPEC, masterConfig(), masterConfig()).getConfigs(),
+        is(Arrays.asList(masterConfig(), masterConfig())));
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
    */
   @Test
-  public void runAndScheduleBuild() throws IOException {
+  public void runAndScheduleBuild() {
     FilesFoundTriggerConfig config = foundConfig();
     FilesFoundTrigger trigger = trigger(SPEC, config);
     trigger.start(job, true);
@@ -221,11 +197,9 @@ public class FilesFoundTriggerTest {
   }
 
   /**
-   * @throws IOException
-   *           If an I/O error occurred
    */
   @Test
-  public void runAndScheduleBuildWithProperties() throws IOException {
+  public void runAndScheduleBuildWithProperties() {
     FilesFoundTriggerConfig expandedConfig = foundConfig();
     defineGlobalProperty("node", "master");
     defineGlobalProperty("directory", expandedConfig.getDirectory());
@@ -260,21 +234,6 @@ public class FilesFoundTriggerTest {
     trigger.start(job, true);
     trigger.run();
     verify(job, never()).scheduleBuild(anyInt(), any(Cause.class));
-  }
-
-  /**
-   */
-  @Test
-  public void toStringContainsSpec() {
-    assertThat(trigger(SPEC).toString(), containsString(SPEC));
-  }
-
-  /**
-   */
-  @Test
-  public void toStringContainsConfig() {
-    assertThat(trigger(SPEC, masterConfig()).toString(),
-        containsString(masterConfig().toString()));
   }
 
   /**
@@ -392,46 +351,36 @@ public class FilesFoundTriggerTest {
   }
 
   /**
+   * Create a new trigger.
+   * 
+   * @param spec
+   *          crontab specification that defines how often to poll
+   * @param configs
+   *          the list of configured file patterns
+   * @return a new {@link FilesFoundTrigger}
    */
-  @Test
-  public void isApplicableNull() {
-    assertThat(new FilesFoundTrigger.DescriptorImpl().isApplicable(null),
-        is(false));
-  }
-
-  /**
-   */
-  @Test
-  public void isApplicableItem() {
-    Item item = mock(Item.class);
-    assertThat(new FilesFoundTrigger.DescriptorImpl().isApplicable(item),
-        is(false));
-  }
-
-  /**
-   */
-  @Test
-  public void isApplicableBuildableItem() {
-    assertThat(new FilesFoundTrigger.DescriptorImpl().isApplicable(job),
-        is(true));
-  }
-
-  /**
-   */
-  @Test
-  public void getDisplayName() {
-    assertThat(new FilesFoundTrigger.DescriptorImpl().getDisplayName(),
-        not(nullValue()));
+  private static FilesFoundTrigger trigger(String spec,
+      FilesFoundTriggerConfig... configs) {
+    List<FilesFoundTriggerConfig> configsList = configs == null ? null : Arrays
+        .asList(configs);
+    try {
+      return new FilesFoundTrigger(spec, configsList);
+    } catch (ANTLRException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   /**
    * Create a new {@link FilesFoundTriggerConfig} that will find files.
    * 
    * @return a new configuration that will find files
-   * @throws IOException
    */
-  private FilesFoundTriggerConfig foundConfig() throws IOException {
-    folder.newFile("test");
+  private FilesFoundTriggerConfig foundConfig() {
+    try {
+      folder.newFile("test");
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
+    }
     return new FilesFoundTriggerConfig(MASTER_NODE, folder.getRoot()
         .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
   }
@@ -443,6 +392,35 @@ public class FilesFoundTriggerTest {
    */
   private FilesFoundTriggerConfig notFoundConfig() {
     return new FilesFoundTriggerConfig(MASTER_NODE, "", "", "", TRIGGER_NUMBER);
+  }
+
+  /**
+   * Create a new configuration for finding files on the master.
+   * 
+   * @return a new {@link FilesFoundTriggerConfig}
+   */
+  private static FilesFoundTriggerConfig masterConfig() {
+    return new FilesFoundTriggerConfig(MASTER_NODE, DIRECTORY, FILES,
+        IGNORED_FILES, TRIGGER_NUMBER);
+  }
+
+  /**
+   * Create a new configuration for finding files on a slave.
+   * 
+   * @return a new {@link FilesFoundTriggerConfig}
+   */
+  private static FilesFoundTriggerConfig slaveConfig() {
+    return new FilesFoundTriggerConfig(SLAVE_NODE, DIRECTORY, FILES,
+        IGNORED_FILES, TRIGGER_NUMBER);
+  }
+
+  /**
+   * Create an empty configuration.
+   * 
+   * @return a new {@link FilesFoundTriggerConfig}
+   */
+  private static FilesFoundTriggerConfig emptyConfig() {
+    return new FilesFoundTriggerConfig("", "", "", "", "1");
   }
 
   /**
@@ -463,11 +441,45 @@ public class FilesFoundTriggerTest {
     }
   }
 
+  /**
+   * Define a global property.
+   * 
+   * @param name
+   * @param value
+   */
   private void defineGlobalProperty(String name, String value) {
     EnvironmentVariablesNodeProperty.Entry entry = new EnvironmentVariablesNodeProperty.Entry(
         name, value);
     EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(
         entry);
     globalNodeProperties.add(property);
+  }
+  
+  /**
+   * Convert the given object to an XML string using XStream.
+   * 
+   * @param obj
+   *          the object to convert
+   * @return the XML string
+   */
+  private static String toXml(Object obj) {
+    XStream2 xStream2 = new XStream2();
+    return xStream2.toXML(obj);
+  }
+
+  /**
+   * Construct an object from the given XML element using XStream.
+   * 
+   * @param <T>
+   *          the type of object to construct
+   * @param xml
+   *          the XML element as a string
+   * @return the newly constructed object
+   */
+  private static <T> T fromXml(String xml) {
+    XStream2 xStream2 = new XStream2();
+    @SuppressWarnings("unchecked")
+    T obj = (T) xStream2.fromXML(xml);
+    return obj;
   }
 }
