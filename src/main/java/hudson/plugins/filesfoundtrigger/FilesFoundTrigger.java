@@ -47,8 +47,8 @@ import hudson.util.RobustReflectionConverter;
 
 /**
  * Build trigger that schedules a build when certain files are found. These
- * files are declared using <a
- * href="http://ant.apache.org/manual/dirtasks.html">Ant-style file
+ * files are declared using
+ * <a href="http://ant.apache.org/manual/dirtasks.html">Ant-style file
  * patterns</a>.
  * 
  * @author Steven G. Brown
@@ -75,9 +75,10 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    * The pattern of files to ignore when searching under the base directory.
    */
   private final String ignoredFiles;
-  
+
   /**
-   * The build is triggered when the number of files found is greater than or equal to this number.
+   * The build is triggered when the number of files found is greater than or
+   * equal to this number.
    */
   private final String triggerNumber;
 
@@ -115,7 +116,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
     this.directory = firstConfig.getDirectory();
     this.files = firstConfig.getFiles();
     this.ignoredFiles = firstConfig.getIgnoredFiles();
-	this.triggerNumber = firstConfig.getTriggerNumber();
+    this.triggerNumber = firstConfig.getTriggerNumber();
     if (configsCopy.isEmpty()) {
       configsCopy = null;
     }
@@ -134,7 +135,7 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
-	this.triggerNumber = "1";
+    this.triggerNumber = "1";
     this.additionalConfigs = null;
   }
 
@@ -144,10 +145,8 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    * @return a list of {@link FilesFoundTriggerConfig}
    */
   public List<FilesFoundTriggerConfig> getConfigs() {
-    ImmutableList.Builder<FilesFoundTriggerConfig> builder = ImmutableList
-        .builder();
-    builder.add(new FilesFoundTriggerConfig(node, directory, files,
-        ignoredFiles, triggerNumber));
+    ImmutableList.Builder<FilesFoundTriggerConfig> builder = ImmutableList.builder();
+    builder.add(new FilesFoundTriggerConfig(node, directory, files, ignoredFiles, triggerNumber));
     if (additionalConfigs != null) {
       builder.addAll(additionalConfigs);
     }
@@ -161,9 +160,9 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public void run() {
     for (FilesFoundTriggerConfig config : getConfigs()) {
       FilesFoundTriggerConfig expandedConfig = config.expand();
-	  int numFilesFound = expandedConfig.findFiles().size();
-	  int triggerNumber = Integer.parseInt(expandedConfig.getTriggerNumber());
-      if (numFilesFound >= triggerNumber ) {
+      int numFilesFound = expandedConfig.findFiles().size();
+      int triggerNumber = Integer.parseInt(expandedConfig.getTriggerNumber());
+      if (numFilesFound >= triggerNumber) {
         job.scheduleBuild(0, new FilesFoundTriggerCause(expandedConfig));
         return;
       }

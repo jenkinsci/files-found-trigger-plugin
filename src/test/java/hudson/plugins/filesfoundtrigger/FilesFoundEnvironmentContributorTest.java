@@ -78,14 +78,13 @@ public class FilesFoundEnvironmentContributorTest {
    */
   @Test
   public void noFilesFoundCause() {
-    assertThat(contributeEnvVars(), is(Collections.<String, String> emptyMap()));
+    assertThat(contributeEnvVars(), is(Collections.<String, String>emptyMap()));
   }
 
   private Map<String, String> contributeEnvVars() {
     EnvVars envVars = new EnvVars();
     BuildListener buildListener = mock(BuildListener.class);
-    new FilesFoundEnvironmentContributor().buildEnvironmentFor(run, envVars,
-        buildListener);
+    new FilesFoundEnvironmentContributor().buildEnvironmentFor(run, envVars, buildListener);
     return envVars;
   }
 }

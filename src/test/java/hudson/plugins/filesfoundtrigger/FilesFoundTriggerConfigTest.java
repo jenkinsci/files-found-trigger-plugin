@@ -98,7 +98,7 @@ public class FilesFoundTriggerConfigTest {
 
   /**
    */
-  @Test  
+  @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(FilesFoundTriggerConfig.class).verify();
   }
@@ -236,8 +236,7 @@ public class FilesFoundTriggerConfigTest {
    */
   @Test
   public void doTestConfigurationNoFilesFound() {
-    assertThat(
-        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
+    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.NoFilesFound())));
   }
 
@@ -259,8 +258,7 @@ public class FilesFoundTriggerConfigTest {
   @Test
   public void doTestConfigurationOneFileFound() throws Exception {
     folder.newFile("test");
-    assertThat(
-        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
+    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.SingleFileFound("test"))));
   }
 
@@ -272,8 +270,7 @@ public class FilesFoundTriggerConfigTest {
   public void doTestConfigurationTwoFilesFound() throws Exception {
     folder.newFile("test");
     folder.newFile("test2");
-    assertThat(
-        validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
+    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
         is(validation(OK, Messages.MultipleFilesFound(2))));
   }
 
@@ -290,19 +287,18 @@ public class FilesFoundTriggerConfigTest {
   }
 
   private void defineGlobalProperty(String name, String value) {
-    EnvironmentVariablesNodeProperty.Entry entry = new EnvironmentVariablesNodeProperty.Entry(
-        name, value);
-    EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(
-        entry);
+    EnvironmentVariablesNodeProperty.Entry entry = new EnvironmentVariablesNodeProperty.Entry(name,
+        value);
+    EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(entry);
     globalNodeProperties.add(property);
   }
 
-  private static FormValidation validate(String directory, String files,
-      String ignoredFiles, String triggerNumber) {
+  private static FormValidation validate(String directory, String files, String ignoredFiles,
+      String triggerNumber) {
     FormValidation formValidation;
     try {
-      formValidation = new FilesFoundTriggerConfig.DescriptorImpl()
-          .doTestConfiguration(MASTER_NODE, directory, files, ignoredFiles, triggerNumber);
+      formValidation = new FilesFoundTriggerConfig.DescriptorImpl().doTestConfiguration(MASTER_NODE,
+          directory, files, ignoredFiles, triggerNumber);
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }

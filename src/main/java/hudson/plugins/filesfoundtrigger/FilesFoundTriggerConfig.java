@@ -58,11 +58,10 @@ import jenkins.model.Jenkins;
  * 
  * @author Steven G. Brown
  */
-public final class FilesFoundTriggerConfig extends
-    AbstractDescribableImpl<FilesFoundTriggerConfig> {
+public final class FilesFoundTriggerConfig
+    extends AbstractDescribableImpl<FilesFoundTriggerConfig> {
 
-  private static final Logger LOGGER = Logger
-      .getLogger(FilesFoundTriggerConfig.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(FilesFoundTriggerConfig.class.getName());
 
   private static String fixNode(String node) {
     if (node != null) {
@@ -94,9 +93,10 @@ public final class FilesFoundTriggerConfig extends
    * The pattern of files to ignore when searching under the base directory.
    */
   private final String ignoredFiles;
-  
+
   /**
-   * The build is triggered when the number of files found is greater than or equal to this number.
+   * The build is triggered when the number of files found is greater than or
+   * equal to this number.
    */
   private final String triggerNumber;
 
@@ -113,17 +113,17 @@ public final class FilesFoundTriggerConfig extends
    *          the pattern of files to ignore when searching under the base
    *          directory
    * @param triggerNumber
-   *          the build is triggered when the number of files found is 
-   *          greater than or equal to this number.
+   *          the build is triggered when the number of files found is greater
+   *          than or equal to this number.
    */
   @DataBoundConstructor
-  public FilesFoundTriggerConfig(String node, String directory, String files,
-      String ignoredFiles, String triggerNumber) {
+  public FilesFoundTriggerConfig(String node, String directory, String files, String ignoredFiles,
+      String triggerNumber) {
     this.node = fixNode(node);
     this.directory = fixNull(directory).trim();
     this.files = fixNull(files).trim();
     this.ignoredFiles = fixNull(ignoredFiles).trim();
-	this.triggerNumber = fixNull(triggerNumber).trim();
+    this.triggerNumber = fixNull(triggerNumber).trim();
   }
 
   /**
@@ -138,7 +138,7 @@ public final class FilesFoundTriggerConfig extends
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
-	this.triggerNumber = "1";
+    this.triggerNumber = "1";
   }
 
   /**
@@ -177,14 +177,14 @@ public final class FilesFoundTriggerConfig extends
   public String getIgnoredFiles() {
     return ignoredFiles;
   }
-  
+
   /**
    * Get the minimum number of found files to trigger the build.
    * 
    * @return the minimum number of files to trigger the build
    */
   public String getTriggerNumber() {
-	return triggerNumber;
+    return triggerNumber;
   }
 
   /**
@@ -208,7 +208,7 @@ public final class FilesFoundTriggerConfig extends
     }
     return false;
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -235,8 +235,7 @@ public final class FilesFoundTriggerConfig extends
     if (jenkins != null) {
       for (NodeProperty<?> property : jenkins.getGlobalNodeProperties()) {
         if (property instanceof EnvironmentVariablesNodeProperty) {
-          vars.overrideAll(((EnvironmentVariablesNodeProperty) property)
-              .getEnvVars());
+          vars.overrideAll(((EnvironmentVariablesNodeProperty) property).getEnvVars());
         }
       }
     }
@@ -246,10 +245,10 @@ public final class FilesFoundTriggerConfig extends
     String expDirectory = vars.expand(directory);
     String expFiles = vars.expand(files);
     String expIgnoredFiles = vars.expand(ignoredFiles);
-	String expTriggerNumber = vars.expand(triggerNumber);
-	
-    return new FilesFoundTriggerConfig(expNode, expDirectory, expFiles,
-        expIgnoredFiles, expTriggerNumber);
+    String expTriggerNumber = vars.expand(triggerNumber);
+
+    return new FilesFoundTriggerConfig(expNode, expDirectory, expFiles, expIgnoredFiles,
+        expTriggerNumber);
   }
 
   /**
@@ -291,8 +290,7 @@ public final class FilesFoundTriggerConfig extends
    * Descriptor for the {@link FilesFoundTriggerConfig} class.
    */
   @Extension
-  public static final class DescriptorImpl extends
-      Descriptor<FilesFoundTriggerConfig> {
+  public static final class DescriptorImpl extends Descriptor<FilesFoundTriggerConfig> {
 
     /**
      * {@inheritDoc}
@@ -314,23 +312,22 @@ public final class FilesFoundTriggerConfig extends
      *          the pattern of files to locate under the base directory
      * @param ignoredFiles
      *          the pattern of files to ignore when searching under the base
-	 *          directory
-	 * @param triggerNumber
-	 *          the minimum number of found files to trigger the build          
+     *          directory
+     * @param triggerNumber
+     *          the minimum number of found files to trigger the build
      * @return the result
      * @throws IOException
      * @throws InterruptedException
      */
-    public FormValidation doTestConfiguration(
-        @QueryParameter("node") final String node,
+    public FormValidation doTestConfiguration(@QueryParameter("node") final String node,
         @QueryParameter("directory") final String directory,
         @QueryParameter("files") final String files,
         @QueryParameter("ignoredFiles") final String ignoredFiles,
-		@QueryParameter("triggerNumber") final String triggerNumber)
+        @QueryParameter("triggerNumber") final String triggerNumber)
         throws IOException, InterruptedException {
 
-      FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(node,
-          directory, files, ignoredFiles, triggerNumber);
+      FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(node, directory, files,
+          ignoredFiles, triggerNumber);
       return FileSearch.perform(config.expand()).formValidation;
     }
 

@@ -69,7 +69,7 @@ public final class FilesFoundTriggerCause extends Cause {
    * the minimum number of found files to trigger the build.
    */
   private final String triggerNumber;
-  
+
   /**
    * Create a new {@link FilesFoundTriggerCause}.
    * 
@@ -81,7 +81,7 @@ public final class FilesFoundTriggerCause extends Cause {
     this.directory = config.getDirectory();
     this.files = config.getFiles();
     this.ignoredFiles = config.getIgnoredFiles();
-	this.triggerNumber = config.getTriggerNumber();
+    this.triggerNumber = config.getTriggerNumber();
   }
 
   /**
@@ -96,7 +96,7 @@ public final class FilesFoundTriggerCause extends Cause {
     this.directory = "";
     this.files = "";
     this.ignoredFiles = "";
-	this.triggerNumber = "";
+    this.triggerNumber = "";
   }
 
   /**
@@ -139,7 +139,7 @@ public final class FilesFoundTriggerCause extends Cause {
   public String getIgnoredFiles() {
     return ignoredFiles;
   }
-  
+
   /**
    * Get the minimum number of found files to trigger the build.
    * 
@@ -155,9 +155,8 @@ public final class FilesFoundTriggerCause extends Cause {
    */
   @Override
   public String getShortDescription() {
-    return ignoredFiles.length() == 0 ? Messages.Cause(getNode(), directory,
-        files) : Messages.CauseWithIgnoredFiles(getNode(), directory, files,
-        ignoredFiles);
+    return ignoredFiles.length() == 0 ? Messages.Cause(getNode(), directory, files)
+        : Messages.CauseWithIgnoredFiles(getNode(), directory, files, ignoredFiles);
   }
 
   /**

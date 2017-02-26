@@ -76,11 +76,11 @@ class FileSearch {
   private static class FindFilesOnSlaveFileCallable extends MasterToSlaveFileCallable<String[]> {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final String files;
-    
+
     private final String ignoredFiles;
-    
+
     FindFilesOnSlaveFileCallable(FilesFoundTriggerConfig config) {
       this.files = config.getFiles();
       this.ignoredFiles = config.getIgnoredFiles();
@@ -102,8 +102,7 @@ class FileSearch {
    * @throws IOException
    * @throws InterruptedException
    */
-  static Result perform(FilesFoundTriggerConfig config) throws IOException,
-      InterruptedException {
+  static Result perform(FilesFoundTriggerConfig config) throws IOException, InterruptedException {
 
     // Check for an incomplete configuration.
     if (config.getDirectory().isEmpty()) {
@@ -140,8 +139,7 @@ class FileSearch {
     // Check for missing directory.
     if (found == null) {
       String userName = System.getProperty("user.name");
-      return new Result(FormValidation.warning(Messages
-          .DirectoryNotFound(userName)));
+      return new Result(FormValidation.warning(Messages.DirectoryNotFound(userName)));
     }
 
     // Search was successful.
@@ -151,14 +149,14 @@ class FileSearch {
     } else if (found.length == 1) {
       formValidation = FormValidation.ok(Messages.SingleFileFound(found[0]));
     } else {
-      formValidation = FormValidation.ok(Messages.MultipleFilesFound(Integer
-          .valueOf(found.length)));
+      formValidation = FormValidation
+          .ok(Messages.MultipleFilesFound(Integer.valueOf(found.length)));
     }
     return new Result(formValidation, found);
   }
 
   @CheckForNull
-  @SuppressFBWarnings(value="PZLA_PREFER_ZERO_LENGTH_ARRAYS")
+  @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS")
   private static String[] scan(File f, String files, String ignoredFiles) {
     if (!f.isDirectory()) {
       // Return null to indicate that the directory does not exist.

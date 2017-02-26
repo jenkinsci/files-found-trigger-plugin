@@ -25,9 +25,9 @@ package hudson.plugins.filesfoundtrigger;
 
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.model.TaskListener;
 import hudson.model.EnvironmentContributor;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 
 /**
  * Contributes environment variables to builds that were caused by the
@@ -37,15 +37,14 @@ import hudson.model.Run;
  * @since 1.3
  */
 @Extension
-public final class FilesFoundEnvironmentContributor extends
-    EnvironmentContributor {
+public final class FilesFoundEnvironmentContributor extends EnvironmentContributor {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void buildEnvironmentFor(@SuppressWarnings("rawtypes") Run r,
-      EnvVars envs, TaskListener listener) {
+  public void buildEnvironmentFor(@SuppressWarnings("rawtypes") Run r, EnvVars envs,
+      TaskListener listener) {
     buildEnvironmentFor(r, envs);
   }
 

@@ -81,62 +81,66 @@ public class FilesFoundTriggerTest {
 
   /**
    */
-  private static final String XML_MASTER = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-      + "  <spec>%s</spec>\n"
-      + "  <directory>%s</directory>\n"
-      + "  <files>%s</files>\n"
-      + "  <ignoredFiles>%s</ignoredFiles>\n"
-      + "  <triggerNumber>%s</triggerNumber>\n"
-      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
+  private static final String XML_MASTER = //
+      "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n" //
+          + "  <spec>%s</spec>\n" //
+          + "  <directory>%s</directory>\n" //
+          + "  <files>%s</files>\n" //
+          + "  <ignoredFiles>%s</ignoredFiles>\n" //
+          + "  <triggerNumber>%s</triggerNumber>\n" //
+          + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
 
   /**
    */
-  private static final String XML_SLAVE = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-      + "  <spec>%s</spec>\n"
-      + "  <node>%s</node>\n"
-      + "  <directory>%s</directory>\n"
-      + "  <files>%s</files>\n"
-      + "  <ignoredFiles>%s</ignoredFiles>\n"
-      + "  <triggerNumber>%s</triggerNumber>\n"
-      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
+  private static final String XML_SLAVE = //
+      "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n" //
+          + "  <spec>%s</spec>\n" //
+          + "  <node>%s</node>\n" //
+          + "  <directory>%s</directory>\n" //
+          + "  <files>%s</files>\n" //
+          + "  <ignoredFiles>%s</ignoredFiles>\n" //
+          + "  <triggerNumber>%s</triggerNumber>\n" //
+          + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
 
   /**
    */
-  private static final String XML_MASTER_ADDITIONAL_CONFIGS = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-      + "  <spec>%s</spec>\n"
-      + "  <directory>%s</directory>\n"
-      + "  <files>%s</files>\n"
-      + "  <ignoredFiles>%s</ignoredFiles>\n"
-      + "  <triggerNumber>%s</triggerNumber>\n"
-      + "  <additionalConfigs>\n"
-      + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
-      + "      <directory>%s</directory>\n"
-      + "      <files>%s</files>\n"
-      + "      <ignoredFiles>%s</ignoredFiles>\n"
-      + "      <triggerNumber>%s</triggerNumber>\n"
-      + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
-      + "  </additionalConfigs>\n"
-      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
+  private static final String XML_MASTER_ADDITIONAL_CONFIGS = //
+      "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n" //
+          + "  <spec>%s</spec>\n" //
+          + "  <directory>%s</directory>\n" //
+          + "  <files>%s</files>\n" //
+          + "  <ignoredFiles>%s</ignoredFiles>\n" //
+          + "  <triggerNumber>%s</triggerNumber>\n" //
+          + "  <additionalConfigs>\n" //
+          + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n" //
+          + "      <directory>%s</directory>\n" //
+          + "      <files>%s</files>\n" //
+          + "      <ignoredFiles>%s</ignoredFiles>\n" //
+          + "      <triggerNumber>%s</triggerNumber>\n" //
+          + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n" //
+          + "  </additionalConfigs>\n" //
+          + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
 
   /**
    */
-  private static final String XML_SLAVE_ADDITIONAL_CONFIGS = "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-      + "  <spec>%s</spec>\n"
-      + "  <node>%s</node>\n"
-      + "  <directory>%s</directory>\n"
-      + "  <files>%s</files>\n"
-      + "  <ignoredFiles>%s</ignoredFiles>\n"
-      + "  <triggerNumber>%s</triggerNumber>\n"
-      + "  <additionalConfigs>\n"
-      + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
-      + "      <node>%s</node>\n"
-      + "      <directory>%s</directory>\n"
-      + "      <files>%s</files>\n"
-      + "      <ignoredFiles>%s</ignoredFiles>\n"
-      + "      <triggerNumber>%s</triggerNumber>\n"
-      + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
-      + "  </additionalConfigs>\n"
-      + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
+  private static final String XML_SLAVE_ADDITIONAL_CONFIGS = //
+      "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n" //
+          + "  <spec>%s</spec>\n" //
+          + "  <node>%s</node>\n" //
+          + "  <directory>%s</directory>\n" //
+          + "  <files>%s</files>\n" //
+          + "  <ignoredFiles>%s</ignoredFiles>\n" //
+          + "  <triggerNumber>%s</triggerNumber>\n" //
+          + "  <additionalConfigs>\n" //
+          + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n" //
+          + "      <node>%s</node>\n" //
+          + "      <directory>%s</directory>\n" //
+          + "      <files>%s</files>\n" //
+          + "      <ignoredFiles>%s</ignoredFiles>\n" //
+          + "      <triggerNumber>%s</triggerNumber>\n" //
+          + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n" //
+          + "  </additionalConfigs>\n" //
+          + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>";
 
   /**
    */
@@ -159,8 +163,7 @@ public class FilesFoundTriggerTest {
     when(Jenkins.getInstance()).thenReturn(jenkins);
 
     job = mock(BuildableItem.class);
-    when(job.getFullName()).thenReturn(
-        FilesFoundTriggerTest.class.getSimpleName());
+    when(job.getFullName()).thenReturn(FilesFoundTriggerTest.class.getSimpleName());
   }
 
   /**
@@ -205,14 +208,13 @@ public class FilesFoundTriggerTest {
     defineGlobalProperty("directory", expandedConfig.getDirectory());
     defineGlobalProperty("files", expandedConfig.getFiles());
     defineGlobalProperty("ignoredFiles", expandedConfig.getIgnoredFiles());
-	defineGlobalProperty("triggerNumber", expandedConfig.getTriggerNumber());
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig("$node",
-        "$directory", "$files", "$ignoredFiles", "$triggerNumber");
+    defineGlobalProperty("triggerNumber", expandedConfig.getTriggerNumber());
+    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig("$node", "$directory", "$files",
+        "$ignoredFiles", "$triggerNumber");
     FilesFoundTrigger trigger = trigger(SPEC, config);
     trigger.start(job, true);
     trigger.run();
-    verify(job, times(1)).scheduleBuild(0,
-        new FilesFoundTriggerCause(expandedConfig));
+    verify(job, times(1)).scheduleBuild(0, new FilesFoundTriggerCause(expandedConfig));
   }
 
   /**
@@ -250,8 +252,8 @@ public class FilesFoundTriggerTest {
   @Test
   public void writeToXmlSlave() {
     String xml = toXml(trigger(SPEC, slaveConfig()));
-    assertThat(xml, is(String.format(XML_SLAVE, SPEC, SLAVE_NODE, DIRECTORY,
-        FILES, IGNORED_FILES, TRIGGER_NUMBER)));
+    assertThat(xml, is(String.format(XML_SLAVE, SPEC, SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES,
+        TRIGGER_NUMBER)));
   }
 
   /**
@@ -259,8 +261,8 @@ public class FilesFoundTriggerTest {
   @Test
   public void writeToXmlMasterWithAdditionalConfigs() {
     String xml = toXml(trigger(SPEC, masterConfig(), masterConfig()));
-    assertThat(xml, is(String.format(XML_MASTER_ADDITIONAL_CONFIGS, SPEC,
-        DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)));
+    assertThat(xml, is(String.format(XML_MASTER_ADDITIONAL_CONFIGS, SPEC, DIRECTORY, FILES,
+        IGNORED_FILES, TRIGGER_NUMBER, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER)));
   }
 
   /**
@@ -268,19 +270,19 @@ public class FilesFoundTriggerTest {
   @Test
   public void writeToXmlSlaveWithAdditionalConfigs() {
     String xml = toXml(trigger(SPEC, slaveConfig(), slaveConfig()));
-    assertThat(xml, is(String.format(XML_SLAVE_ADDITIONAL_CONFIGS, SPEC,
-        SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER, SLAVE_NODE, DIRECTORY,
-        FILES, IGNORED_FILES, TRIGGER_NUMBER)));
+    assertThat(xml,
+        is(String.format(XML_SLAVE_ADDITIONAL_CONFIGS, SPEC, SLAVE_NODE, DIRECTORY, FILES,
+            IGNORED_FILES, TRIGGER_NUMBER, SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES,
+            TRIGGER_NUMBER)));
   }
 
   /**
    */
   @Test
   public void readFromXmlMaster() {
-    FilesFoundTrigger trigger = fromXml(String.format(XML_MASTER, SPEC,
-        DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
-    assertThat(String.valueOf(trigger),
-        is(String.valueOf(trigger(SPEC, masterConfig()))));
+    FilesFoundTrigger trigger = fromXml(
+        String.format(XML_MASTER, SPEC, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
+    assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC, masterConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
@@ -288,10 +290,9 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void readFromXmlSlave() {
-    FilesFoundTrigger trigger = fromXml(String.format(XML_SLAVE, SPEC,
-        SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
-    assertThat(String.valueOf(trigger),
-        is(String.valueOf(trigger(SPEC, slaveConfig()))));
+    FilesFoundTrigger trigger = fromXml(String.format(XML_SLAVE, SPEC, SLAVE_NODE, DIRECTORY, FILES,
+        IGNORED_FILES, TRIGGER_NUMBER));
+    assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC, slaveConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
@@ -299,9 +300,9 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void readFromXmlMasterWithAdditionalConfigs() {
-    FilesFoundTrigger trigger = fromXml(String.format(
-        XML_MASTER_ADDITIONAL_CONFIGS, SPEC, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER, 
-        DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
+    FilesFoundTrigger trigger = fromXml(
+        String.format(XML_MASTER_ADDITIONAL_CONFIGS, SPEC, DIRECTORY, FILES, IGNORED_FILES,
+            TRIGGER_NUMBER, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(String.valueOf(trigger),
         is(String.valueOf(trigger(SPEC, masterConfig(), masterConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
@@ -311,9 +312,9 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void readFromXmlSlaveWithAdditionalConfigs() {
-    FilesFoundTrigger trigger = fromXml(String.format(
-        XML_SLAVE_ADDITIONAL_CONFIGS, SPEC, SLAVE_NODE, DIRECTORY, FILES,
-        IGNORED_FILES, TRIGGER_NUMBER, SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER));
+    FilesFoundTrigger trigger = fromXml(String.format(XML_SLAVE_ADDITIONAL_CONFIGS, SPEC,
+        SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER, SLAVE_NODE, DIRECTORY, FILES,
+        IGNORED_FILES, TRIGGER_NUMBER));
     assertThat(String.valueOf(trigger),
         is(String.valueOf(trigger(SPEC, slaveConfig(), slaveConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
@@ -323,12 +324,11 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void readFromXmlWithMissingFields() {
-    FilesFoundTrigger trigger = fromXml(String.format(
-        "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-            + "  <spec>%s</spec>\n"
+    FilesFoundTrigger trigger = fromXml(String
+        .format("<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n" + "  <spec>%s</spec>\n"
             + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
-    assertThat(String.valueOf(trigger), is(String.valueOf(trigger(SPEC,
-        new FilesFoundTriggerConfig("", "", "", "", "1")))));
+    assertThat(String.valueOf(trigger),
+        is(String.valueOf(trigger(SPEC, new FilesFoundTriggerConfig("", "", "", "", "1")))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
   }
 
@@ -336,15 +336,13 @@ public class FilesFoundTriggerTest {
    */
   @Test
   public void readFromXmlWithAdditionalConfigsAndMissingFields() {
-    FilesFoundTrigger trigger = fromXml(String
-        .format(
-            "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n"
-                + "  <spec>%s</spec>\n"
-                + "  <additionalConfigs>\n"
-                + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
-                + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
-                + "  </additionalConfigs>\n"
-                + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>", SPEC));
+    FilesFoundTrigger trigger = fromXml(String.format(
+        "<hudson.plugins.filesfoundtrigger.FilesFoundTrigger>\n" + "  <spec>%s</spec>\n"
+            + "  <additionalConfigs>\n"
+            + "    <hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+            + "    </hudson.plugins.filesfoundtrigger.FilesFoundTriggerConfig>\n"
+            + "  </additionalConfigs>\n" + "</hudson.plugins.filesfoundtrigger.FilesFoundTrigger>",
+        SPEC));
     assertThat(String.valueOf(trigger),
         is(String.valueOf(trigger(SPEC, emptyConfig(), emptyConfig()))));
     assertThat("tabs", getTabs(trigger), not(nullValue()));
@@ -359,10 +357,8 @@ public class FilesFoundTriggerTest {
    *          the list of configured file patterns
    * @return a new {@link FilesFoundTrigger}
    */
-  private static FilesFoundTrigger trigger(String spec,
-      FilesFoundTriggerConfig... configs) {
-    List<FilesFoundTriggerConfig> configsList = configs == null ? null : Arrays
-        .asList(configs);
+  private static FilesFoundTrigger trigger(String spec, FilesFoundTriggerConfig... configs) {
+    List<FilesFoundTriggerConfig> configsList = configs == null ? null : Arrays.asList(configs);
     try {
       return new FilesFoundTrigger(spec, configsList);
     } catch (ANTLRException ex) {
@@ -381,8 +377,8 @@ public class FilesFoundTriggerTest {
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
-    return new FilesFoundTriggerConfig(MASTER_NODE, folder.getRoot()
-        .getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
+    return new FilesFoundTriggerConfig(MASTER_NODE, folder.getRoot().getAbsolutePath(), FILES,
+        IGNORED_FILES, TRIGGER_NUMBER);
   }
 
   /**
@@ -400,8 +396,8 @@ public class FilesFoundTriggerTest {
    * @return a new {@link FilesFoundTriggerConfig}
    */
   private static FilesFoundTriggerConfig masterConfig() {
-    return new FilesFoundTriggerConfig(MASTER_NODE, DIRECTORY, FILES,
-        IGNORED_FILES, TRIGGER_NUMBER);
+    return new FilesFoundTriggerConfig(MASTER_NODE, DIRECTORY, FILES, IGNORED_FILES,
+        TRIGGER_NUMBER);
   }
 
   /**
@@ -410,8 +406,7 @@ public class FilesFoundTriggerTest {
    * @return a new {@link FilesFoundTriggerConfig}
    */
   private static FilesFoundTriggerConfig slaveConfig() {
-    return new FilesFoundTriggerConfig(SLAVE_NODE, DIRECTORY, FILES,
-        IGNORED_FILES, TRIGGER_NUMBER);
+    return new FilesFoundTriggerConfig(SLAVE_NODE, DIRECTORY, FILES, IGNORED_FILES, TRIGGER_NUMBER);
   }
 
   /**
@@ -432,8 +427,7 @@ public class FilesFoundTriggerTest {
    */
   private Object getTabs(FilesFoundTrigger trigger) {
     try {
-      Field field = FilesFoundTrigger.class.getSuperclass().getDeclaredField(
-          "tabs");
+      Field field = FilesFoundTrigger.class.getSuperclass().getDeclaredField("tabs");
       field.setAccessible(true);
       return field.get(trigger);
     } catch (Exception ex) {
@@ -448,13 +442,12 @@ public class FilesFoundTriggerTest {
    * @param value
    */
   private void defineGlobalProperty(String name, String value) {
-    EnvironmentVariablesNodeProperty.Entry entry = new EnvironmentVariablesNodeProperty.Entry(
-        name, value);
-    EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(
-        entry);
+    EnvironmentVariablesNodeProperty.Entry entry = new EnvironmentVariablesNodeProperty.Entry(name,
+        value);
+    EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(entry);
     globalNodeProperties.add(property);
   }
-  
+
   /**
    * Convert the given object to an XML string using XStream.
    * 
