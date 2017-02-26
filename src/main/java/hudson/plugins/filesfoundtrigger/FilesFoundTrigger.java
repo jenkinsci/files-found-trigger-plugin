@@ -25,8 +25,11 @@ package hudson.plugins.filesfoundtrigger;
 
 import static hudson.Util.fixNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -54,6 +57,8 @@ import hudson.util.RobustReflectionConverter;
  * @author Steven G. Brown
  */
 public final class FilesFoundTrigger extends Trigger<BuildableItem> {
+
+  private static final Logger LOGGER = Logger.getLogger(FilesFoundTrigger.class.getName());
 
   /**
    * The slave node on which to look for files, or {@code null} if the master
@@ -160,11 +165,19 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public void run() {
     for (FilesFoundTriggerConfig config : getConfigs()) {
       FilesFoundTriggerConfig expandedConfig = config.expand();
-      int numFilesFound = expandedConfig.findFiles().size();
-      int triggerNumber = Integer.parseInt(expandedConfig.getTriggerNumber());
-      if (numFilesFound >= triggerNumber) {
-        job.scheduleBuild(0, new FilesFoundTriggerCause(expandedConfig));
-        return;
+      try {
+        int numFilesFound = expandedConfig.findFiles().size();
+        int triggerNumber = Integer.parseInt(expandedConfig.getTriggerNumber());
+        if (numFilesFound >= triggerNumber) {
+          job.scheduleBuild(0, new FilesFoundTriggerCause(expandedConfig));
+          return;
+        }
+      } catch (NumberFormatException e) {
+        LOGGER.log(Level.FINE, "Invalid trigger number: " + expandedConfig.getTriggerNumber());
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (IOException e) {
+        LOGGER.log(Level.WARNING, e.getMessage(), e);
       }
     }
   }

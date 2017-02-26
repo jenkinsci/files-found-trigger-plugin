@@ -104,18 +104,20 @@ public class FilesFoundTriggerConfigTest {
   }
 
   /**
+   * @throws Exception
    */
   @Test
-  public void findFilesDirectoryNotSpecified() {
+  public void findFilesDirectoryNotSpecified() throws Exception {
     FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE, "", FILES,
         IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String>emptyList()));
   }
 
   /**
+   * @throws Exception
    */
   @Test
-  public void findFilesDirectoryNotFound() {
+  public void findFilesDirectoryNotFound() throws Exception {
     File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
     FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
         nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
@@ -123,18 +125,20 @@ public class FilesFoundTriggerConfigTest {
   }
 
   /**
+   * @throws Exception
    */
   @Test
-  public void findFilesFilesNotSpecified() {
+  public void findFilesFilesNotSpecified() throws Exception {
     FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
         folder.getRoot().getAbsolutePath(), "", IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String>emptyList()));
   }
 
   /**
+   * @throws Exception
    */
   @Test
-  public void findFilesNoFiles() {
+  public void findFilesNoFiles() throws Exception {
     FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
         folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
     assertThat(config.findFiles(), is(Collections.<String>emptyList()));

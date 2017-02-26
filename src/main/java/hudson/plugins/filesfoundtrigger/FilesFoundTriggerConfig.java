@@ -26,11 +26,8 @@ package hudson.plugins.filesfoundtrigger;
 import static hudson.Util.fixNull;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -60,8 +57,6 @@ import jenkins.model.Jenkins;
  */
 public final class FilesFoundTriggerConfig
     extends AbstractDescribableImpl<FilesFoundTriggerConfig> {
-
-  private static final Logger LOGGER = Logger.getLogger(FilesFoundTriggerConfig.class.getName());
 
   private static String fixNode(String node) {
     if (node != null) {
@@ -255,17 +250,11 @@ public final class FilesFoundTriggerConfig
    * Search for the files.
    * 
    * @return the files found
+   * @throws IOException
+   * @throws InterruptedException
    */
-  List<String> findFiles() {
-    try {
-      return FileSearch.perform(this).files;
-    } catch (IOException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      LOGGER.log(Level.WARNING, e.getMessage(), e);
-    }
-    return Collections.emptyList();
+  List<String> findFiles() throws IOException, InterruptedException {
+    return FileSearch.perform(this).files;
   }
 
   /**
