@@ -26,8 +26,10 @@ package hudson.plugins.filesfoundtrigger;
 import static hudson.Util.fixNull;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,6 +61,8 @@ import hudson.util.RobustReflectionConverter;
 public final class FilesFoundTrigger extends Trigger<BuildableItem> {
 
   private static final Logger LOGGER = Logger.getLogger(FilesFoundTrigger.class.getName());
+
+  private static final AtomicLong logCounter = new AtomicLong();
 
   /**
    * The slave node on which to look for files, or {@code null} if the master
@@ -163,24 +167,29 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
    */
   @Override
   public void run() {
+    long counter = logCounter.incrementAndGet();
     for (FilesFoundTriggerConfig config : getConfigs()) {
       FilesFoundTriggerConfig expandedConfig = config.expand();
-      LOGGER.log(Level.FINE, "Searching for {0}", expandedConfig);
+      LOGGER.log(Level.FINE, "{0} - Searching for {1}", new Object[] { counter, expandedConfig });
       try {
         FileSearch.Result result = FileSearch.perform(expandedConfig);
         int triggerNumber = Integer.parseInt(expandedConfig.getTriggerNumber());
-        LOGGER.log(Level.FINE, "{0} (target: {1})",
-            new Object[] { result.formValidation, triggerNumber });
-        if (result.files.size() >= triggerNumber) {
+        boolean triggerBuild = result.files.size() >= triggerNumber;
+        LOGGER.log(Level.FINE, "{0} - Result: {1} ({2})", new Object[] { counter,
+            result.formValidation, triggerBuild ? "build triggered" : "build not triggered" });
+        if (triggerBuild) {
           job.scheduleBuild(0, new FilesFoundTriggerCause(expandedConfig));
           return;
         }
       } catch (NumberFormatException e) {
-        LOGGER.log(Level.FINE, "Invalid trigger number: {0}", expandedConfig.getTriggerNumber());
+        LOGGER.log(Level.FINE, "{0} - Result: Invalid trigger number (build not triggered)",
+            counter);
       } catch (InterruptedException e) {
+        LOGGER.log(Level.FINE, "{0} - Result: Thread interrupted (build not triggered)", counter);
         Thread.currentThread().interrupt();
       } catch (IOException e) {
-        LOGGER.log(Level.WARNING, e.getMessage(), e);
+        LOGGER.log(Level.WARNING, MessageFormat.format("{0} - Searching for {1}. Result: {2}",
+            new Object[] { counter, expandedConfig, e.getMessage() }), e);
       }
     }
   }

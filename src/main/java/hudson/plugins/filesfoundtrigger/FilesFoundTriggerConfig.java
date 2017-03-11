@@ -218,8 +218,9 @@ public final class FilesFoundTriggerConfig
    */
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("node", node)
-        .append("directory", directory).append("files", files).append("ignoredFiles", ignoredFiles)
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("node", node == null ? "master" : node).append("directory", directory)
+        .append("files", files).append("ignoredFiles", ignoredFiles)
         .append("triggerNumber", triggerNumber).toString();
   }
 
