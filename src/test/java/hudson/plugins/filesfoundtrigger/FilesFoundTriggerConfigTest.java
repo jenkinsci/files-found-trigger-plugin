@@ -23,23 +23,16 @@
  */
 package hudson.plugins.filesfoundtrigger;
 
-import static hudson.plugins.filesfoundtrigger.Support.DIRECTORY;
-import static hudson.plugins.filesfoundtrigger.Support.FILES;
 import static hudson.plugins.filesfoundtrigger.Support.IGNORED_FILES;
 import static hudson.plugins.filesfoundtrigger.Support.MASTER_NODE;
 import static hudson.plugins.filesfoundtrigger.Support.TRIGGER_NUMBER;
-import static hudson.util.FormValidation.Kind.ERROR;
 import static hudson.util.FormValidation.Kind.OK;
-import static hudson.util.FormValidation.Kind.WARNING;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 
 import org.hamcrest.CustomMatcher;
@@ -51,8 +44,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.google.common.base.Throwables;
 
 import hudson.Util;
 import hudson.model.Saveable;
@@ -80,8 +71,6 @@ public class FilesFoundTriggerConfigTest {
 
   private DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties;
 
-  private String userName;
-
   /**
    */
   @Before
@@ -92,8 +81,6 @@ public class FilesFoundTriggerConfigTest {
     when(jenkins.getGlobalNodeProperties()).thenReturn(globalNodeProperties);
     mockStatic(Jenkins.class);
     when(Jenkins.getInstance()).thenReturn(jenkins);
-
-    userName = System.getProperty("user.name");
   }
 
   /**
@@ -107,187 +94,15 @@ public class FilesFoundTriggerConfigTest {
    * @throws Exception
    */
   @Test
-  public void findFilesDirectoryNotSpecified() throws Exception {
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE, "", FILES,
-        IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void findFilesDirectoryNotFound() throws Exception {
-    File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
-        nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void findFilesFilesNotSpecified() throws Exception {
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
-        folder.getRoot().getAbsolutePath(), "", IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void findFilesNoFiles() throws Exception {
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
-        folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void findFilesOneFile() throws Exception {
-    folder.newFile("test");
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
-        folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.singletonList("test")));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void findFilesTwoFiles() throws Exception {
-    folder.newFile("test");
-    folder.newFile("test2");
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
-        folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Arrays.asList("test", "test2")));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void findFilesNoUnignoredFiles() throws Exception {
-    folder.newFile("test");
-    FilesFoundTriggerConfig config = new FilesFoundTriggerConfig(MASTER_NODE,
-        folder.getRoot().getAbsolutePath(), FILES, "**", TRIGGER_NUMBER);
-    assertThat(config.findFiles(), is(Collections.<String>emptyList()));
-  }
-
-  /**
-   */
-  @Test
-  public void doTestConfigurationDirectoryNotSpecified() {
-    assertThat(validate("", FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(ERROR, Messages.DirectoryNotSpecified())));
-  }
-
-  /**
-   */
-  @Test
-  public void doTestConfigurationFilesNotSpecified() {
-    assertThat(validate(DIRECTORY, "", IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(ERROR, Messages.FilesNotSpecified())));
-  }
-
-  /**
-   */
-  @Test
-  public void doTestConfigurationDirectoryNotFound() {
-    File nonExistentDirectory = new File(folder.getRoot(), "nonexistent");
-    assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(WARNING, Messages.DirectoryNotFound(userName))));
-  }
-
-  /**
-   */
-  @Test
-  public void doTestConfigurationDirectoryNotFoundWithProperty() {
-    defineGlobalProperty("property", "nonexistent");
-    File nonExistentDirectory = new File(folder.getRoot(), "$property");
-    assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(WARNING, Messages.DirectoryNotFound(userName))));
-  }
-
-  /**
-   */
-  @Test
-  public void doTestConfigurationDirectoryNotFoundWithUnrecognisedProperty() {
-    File nonExistentDirectory = new File(folder.getRoot(), "$nonexistent");
-    assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(WARNING, Messages.DirectoryNotFound(userName))));
-  }
-
-  /**
-   */
-  @Test
-  public void doTestConfigurationDirectoryNotFoundWithEmptyProperty() {
-    defineGlobalProperty("property", "");
-    File nonExistentDirectory = new File(folder.getRoot(), "$property");
-    assertThat(
-        validate(nonExistentDirectory.getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(WARNING, Messages.DirectoryNotFound(userName))));
-  }
-
-  /**
-   */
-  @Test
-  public void doTestConfigurationNoFilesFound() {
-    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(OK, Messages.NoFilesFound())));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void doTestConfigurationNoFilesFoundWithProperty() throws Exception {
+  public void doTestConfiguration() throws Exception {
     folder.newFile("test");
     defineGlobalProperty("property", "test");
-    assertThat(
-        validate(folder.getRoot().getAbsolutePath(), "$property", IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(OK, Messages.SingleFileFound("test"))));
-  }
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void doTestConfigurationOneFileFound() throws Exception {
-    folder.newFile("test");
-    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(OK, Messages.SingleFileFound("test"))));
-  }
+    FormValidation formValidation = new FilesFoundTriggerConfig.DescriptorImpl()
+        .doTestConfiguration(MASTER_NODE, folder.getRoot().getAbsolutePath(), "$property",
+            IGNORED_FILES, TRIGGER_NUMBER);
 
-  /**
-   * @throws Exception
-   */
-  @SuppressWarnings("boxing")
-  @Test
-  public void doTestConfigurationTwoFilesFound() throws Exception {
-    folder.newFile("test");
-    folder.newFile("test2");
-    assertThat(validate(folder.getRoot().getAbsolutePath(), FILES, IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(OK, Messages.MultipleFilesFound(2))));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void doTestConfigurationWithProperty() throws Exception {
-    folder.newFile("test");
-    defineGlobalProperty("property", "test");
-    assertThat(
-        validate(folder.getRoot().getAbsolutePath(), "$property", IGNORED_FILES, TRIGGER_NUMBER),
-        is(validation(OK, Messages.SingleFileFound("test"))));
+    assertThat(formValidation, is(validation(OK, Messages.SingleFileFound("test"))));
   }
 
   private void defineGlobalProperty(String name, String value) {
@@ -295,18 +110,6 @@ public class FilesFoundTriggerConfigTest {
         value);
     EnvironmentVariablesNodeProperty property = new EnvironmentVariablesNodeProperty(entry);
     globalNodeProperties.add(property);
-  }
-
-  private static FormValidation validate(String directory, String files, String ignoredFiles,
-      String triggerNumber) {
-    FormValidation formValidation;
-    try {
-      formValidation = new FilesFoundTriggerConfig.DescriptorImpl().doTestConfiguration(MASTER_NODE,
-          directory, files, ignoredFiles, triggerNumber);
-    } catch (Exception e) {
-      throw Throwables.propagate(e);
-    }
-    return formValidation;
   }
 
   private static Matcher<FormValidation> validation(final FormValidation.Kind kind,

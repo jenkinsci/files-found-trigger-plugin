@@ -31,6 +31,8 @@ import java.util.List;
 
 import javax.annotation.CheckForNull;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.tools.ant.types.FileSet;
 
 import com.google.common.collect.ImmutableList;
@@ -67,6 +69,15 @@ class FileSearch {
     private Result(FormValidation formValidation, String[] files) {
       this.formValidation = formValidation;
       this.files = ImmutableList.copyOf(files);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+      return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+          .append("formValidation", formValidation).append("files", files).toString();
     }
   }
 

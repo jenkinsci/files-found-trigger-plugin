@@ -165,15 +165,18 @@ public final class FilesFoundTrigger extends Trigger<BuildableItem> {
   public void run() {
     for (FilesFoundTriggerConfig config : getConfigs()) {
       FilesFoundTriggerConfig expandedConfig = config.expand();
+      LOGGER.log(Level.FINE, "Searching for {0}", expandedConfig);
       try {
-        int numFilesFound = expandedConfig.findFiles().size();
+        FileSearch.Result result = FileSearch.perform(expandedConfig);
         int triggerNumber = Integer.parseInt(expandedConfig.getTriggerNumber());
-        if (numFilesFound >= triggerNumber) {
+        LOGGER.log(Level.FINE, "{0} (target: {1})",
+            new Object[] { result.formValidation, triggerNumber });
+        if (result.files.size() >= triggerNumber) {
           job.scheduleBuild(0, new FilesFoundTriggerCause(expandedConfig));
           return;
         }
       } catch (NumberFormatException e) {
-        LOGGER.log(Level.FINE, "Invalid trigger number: " + expandedConfig.getTriggerNumber());
+        LOGGER.log(Level.FINE, "Invalid trigger number: {0}", expandedConfig.getTriggerNumber());
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (IOException e) {
