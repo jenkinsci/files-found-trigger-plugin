@@ -58,6 +58,15 @@ import jenkins.model.Jenkins;
 public final class FilesFoundTriggerConfig
     extends AbstractDescribableImpl<FilesFoundTriggerConfig> {
 
+  /**
+   * Get the descriptor of this class. This is used by config.jelly.
+   * 
+   * @return the {@link FilesFoundTriggerConfig} descriptor
+   */
+  public static Descriptor<?> getClassDescriptor() {
+    return Jenkins.getInstance().getDescriptorOrDie(FilesFoundTriggerConfig.class);
+  }
+
   private static String fixNode(String node) {
     if (node != null) {
       node = node.trim();
