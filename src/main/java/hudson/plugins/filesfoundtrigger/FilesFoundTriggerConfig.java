@@ -64,7 +64,8 @@ public final class FilesFoundTriggerConfig
    * @return the {@link FilesFoundTriggerConfig} descriptor
    */
   public static Descriptor<?> getClassDescriptor() {
-    return Jenkins.getInstance().getDescriptorOrDie(FilesFoundTriggerConfig.class);
+    Jenkins jenkins = Jenkins.getInstance();
+    return jenkins == null ? null : jenkins.getDescriptor(FilesFoundTriggerConfig.class);
   }
 
   private static String fixNode(String node) {
