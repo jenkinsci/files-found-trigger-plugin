@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>files-found-trigger</artifactId>
-  <version>1.4.1-SNAPSHOT</version>
+  <version>1.5</version>
   <packaging>hpi</packaging>
 
   <name>Files Found Trigger</name>
@@ -36,7 +36,7 @@
     <connection>scm:git:git://github.com/jenkinsci/files-found-trigger-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/files-found-trigger-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/files-found-trigger-plugin</url>
-    <tag>HEAD</tag>
+    <tag>files-found-trigger-1.5</tag>
   </scm>
 
   <repositories>
